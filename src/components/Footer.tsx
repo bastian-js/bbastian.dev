@@ -7,30 +7,10 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
   const socialLinks = [
-    {
-      name: "Discord",
-      icon: MessageCircle,
-      url: "#",
-      color: "#5865F2",
-    },
-    {
-      name: "Twitter",
-      icon: Twitter,
-      url: "#",
-      color: "#1DA1F2",
-    },
-    {
-      name: "Instagram",
-      icon: Instagram,
-      url: "#",
-      color: "#E4405F",
-    },
-    {
-      name: "GitHub",
-      icon: Github,
-      url: "#",
-      color: "#FFFFFF",
-    },
+    { name: "Discord", icon: MessageCircle, url: "#", color: "#5865F2" },
+    { name: "Twitter", icon: Twitter, url: "#", color: "#1DA1F2" },
+    { name: "Instagram", icon: Instagram, url: "#", color: "#E4405F" },
+    { name: "GitHub", icon: Github, url: "#", color: "#FFFFFF" },
   ];
 
   const pages = [
@@ -43,10 +23,14 @@ const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#0a0a0a] border-t border-white/5 mt-20">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+    <footer className="bg-[#0a0a0a]">
+      {/* TOP FULL-WIDTH LINE */}
+      <div className="border-t border-white/5 -mx-[calc((100vw-100%)/2)]" />
+
+      {/* CONTENT */}
+      <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
-          {/* Social Media Links */}
+          {/* CONNECT */}
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-white font-semibold mb-3 text-lg">Connect</h3>
             <div className="flex gap-4">
@@ -58,7 +42,7 @@ const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative p-3 bg-[#1a1a1a] rounded-lg border border-white/5 transition-all duration-300 hover:scale-110"
+                    className="group p-3 bg-[#1a1a1a] rounded-lg border border-white/5 transition-all duration-300 hover:scale-110"
                     onMouseEnter={(e) => {
                       const icon = e.currentTarget.querySelector("svg");
                       if (icon) icon.style.color = social.color;
@@ -75,7 +59,7 @@ const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
             </div>
           </div>
 
-          {/* Navigation Pages */}
+          {/* NAVIGATE */}
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-white font-semibold mb-3 text-lg">Navigate</h3>
             <nav className="flex flex-col gap-3">
@@ -98,10 +82,10 @@ const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
             </nav>
           </div>
 
-          {/* Additional Info */}
+          {/* INFO */}
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-white font-semibold mb-3 text-lg">Info</h3>
-            <p className="text-gray-400 !text-sm leading-relaxed text-left">
+            <p className="text-gray-400 text-sm leading-relaxed text-left">
               Building digital experiences
               <br />
               one project at a time.
@@ -109,11 +93,10 @@ const Footer: React.FC<FooterProps> = ({ currentPage = "home" }) => {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="pt-8 border-t border-white/5">
-          <p className="text-center text-gray-500 !text-sm">
-            {currentYear}
-            {" ©  "}
+        {/* BOTTOM FULL-WIDTH LINE */}
+        <div className="border-t border-white/5 -mx-[calc((100vw-100%)/2)] pt-8">
+          <p className="text-center text-gray-500 text-sm">
+            {currentYear} ©{" "}
             <a
               href="https://github.com/bastian-js"
               target="_blank"

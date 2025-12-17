@@ -93,7 +93,7 @@ function NavBar() {
           <a href="/">bbastian.dev</a>
         </div>
 
-        {/* Center - Now Playing */}
+        {/* Now Playing */}
         <button
           onClick={() => setShowSpotify(!showSpotify)}
           className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] rounded-full border border-white/5 hover:border-white/10 transition-all hover:scale-105"
@@ -128,7 +128,7 @@ function NavBar() {
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-3 h-3 rounded-full ${getStatusColor()}`}
+                  className={`w-3 h-3 rounded-full animate-pulse ${getStatusColor()}`}
                 ></div>
                 <h3 className="text-white font-semibold">{getStatusText()}</h3>
               </div>

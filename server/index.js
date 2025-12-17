@@ -2,6 +2,9 @@ import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+import nodemailer from "nodemailer";
+import { z } from "zod";
 
 dotenv.config();
 
@@ -165,6 +168,7 @@ app.get("/api/spotify/now-playing", async (req, res) => {
           isPlaying: nowPlaying.is_playing,
           progress: nowPlaying.progress_ms,
           duration: track.duration_ms,
+          url: track.external_urls.spotify,
         },
       });
     } else {
@@ -196,6 +200,60 @@ app.get("/api/spotify/now-playing", async (req, res) => {
     return res.json({
       status: "error",
     });
+  }
+});
+
+// Rate limit
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+});
+
+// Validation
+const schema = z.object({
+  name: z.string().min(2).max(100),
+  email: z.string().email(),
+  message: z.string().min(10).max(2000),
+});
+
+// SMTP (Mailcow)
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // true bei 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false, // wichtig bei selbstem Zertifikat
+  },
+});
+
+router.post("/api/contact", limiter, async (req, res) => {
+  try {
+    const data = schema.parse(req.body);
+
+    await transporter.sendMail({
+      from: process.env.MAIL_FROM,
+      to: process.env.MAIL_TO,
+      replyTo: data.email,
+      subject: `Contact form – ${data.name}`,
+      text: `
+Name: ${data.name}
+Email: ${data.email}
+
+${data.message}
+      `.trim(),
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid input" });
+    }
+    console.error(err);
+    res.status(500).json({ error: "Mail failed" });
   }
 });
 

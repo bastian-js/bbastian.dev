@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Code,
 } from "lucide-react";
+import Footer from "../components/Footer";
 
 function Socials() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -72,49 +73,50 @@ function Socials() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white py-20 px-6">
-      {/* Header Section */}
-      <div className="max-w-2xl mx-auto text-center mb-12">
-        <div className="mb-6 inline-block">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 mx-auto">
-            <img
-              src="/profile_picture.png"
-              alt="Profile"
-              className="w-full h-full rounded-full object-cover border-4 border-[#0a0a0a]"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.parentElement!.innerHTML =
-                  '<div class="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold">B</div>';
-              }}
-            />
+    <>
+      <div className="min-h-screen bg-[#0a0a0a] text-white py-20 px-6">
+        {/* Header Section */}
+        <div className="max-w-2xl mx-auto text-center mb-12">
+          <div className="mb-6 inline-block">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 mx-auto">
+              <img
+                src="/profile_picture.png"
+                alt="Profile"
+                className="w-full h-full rounded-full object-cover border-4 border-[#0a0a0a]"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  e.currentTarget.parentElement!.innerHTML =
+                    '<div class="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold">B</div>';
+                }}
+              />
+            </div>
           </div>
+
+          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            Bastian
+          </h1>
+
+          <p className="text-gray-400 text-lg mb-2">Full-Stack Developer</p>
+
+          <p className="text-gray-500 max-w-md mx-auto">
+            Building cool stuff with code. Connect with me on your favorite
+            platform below.
+          </p>
         </div>
 
-        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-          Bastian
-        </h1>
-
-        <p className="text-gray-400 text-lg mb-2">Full-Stack Developer</p>
-
-        <p className="text-gray-500 max-w-md mx-auto">
-          Building cool stuff with code. Connect with me on your favorite
-          platform below.
-        </p>
-      </div>
-
-      {/* Social Links Grid */}
-      <div className="max-w-2xl mx-auto space-y-4">
-        {socialLinks.map((link, index) => {
-          const Icon = link.icon;
-          return (
-            <a
-              key={index}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              className={`
+        {/* Social Links Grid */}
+        <div className="max-w-2xl mx-auto space-y-4">
+          {socialLinks.map((link, index) => {
+            const Icon = link.icon;
+            return (
+              <a
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className={`
                 group relative block w-full p-6 rounded-2xl
                 bg-[#1a1a1a] border border-white/5
                 transition-all duration-300 ease-out
@@ -122,85 +124,80 @@ function Socials() {
                 hover:shadow-2xl ${link.hoverColor}
                 active:scale-[0.98]
               `}
-            >
-              {/* Gradient overlay on hover */}
-              <div
-                className={`
+              >
+                {/* Gradient overlay on hover */}
+                <div
+                  className={`
                   absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10
                   bg-gradient-to-r ${link.color}
                   transition-opacity duration-300
                 `}
-              />
+                />
 
-              <div className="relative flex items-center gap-5">
-                {/* Icon */}
-                <div
-                  className={`
+                <div className="relative flex items-center gap-5">
+                  {/* Icon */}
+                  <div
+                    className={`
                     flex-shrink-0 w-14 h-14 rounded-xl
                     bg-gradient-to-br ${link.color}
                     flex items-center justify-center
                     transition-transform duration-300
                     ${
                       hoveredIndex === index
-                        ? "scale-110 rotate-3"
+                        ? "scale-110 rotate-10"
                         : "scale-100"
                     }
                     shadow-lg
                   `}
-                >
-                  <Icon className="w-7 h-7 text-white" />
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-xl font-semibold text-white">
-                      {link.name}
-                    </h3>
-                    <span className="text-sm text-gray-500">
-                      {link.username}
-                    </span>
+                  >
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <p className="text-gray-400 text-sm text-left">
-                    {link.description}
-                  </p>
-                </div>
 
-                {/* Arrow */}
-                <div
-                  className={`
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-xl font-semibold text-white">
+                        {link.name}
+                      </h3>
+                      <span className="text-sm text-gray-500">
+                        {link.username}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-sm text-left">
+                      {link.description}
+                    </p>
+                  </div>
+
+                  {/* Arrow */}
+                  <div
+                    className={`
                     flex-shrink-0 text-gray-400 transition-all duration-300
                     ${hoveredIndex === index ? "translate-x-1 text-white" : ""}
                   `}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            </a>
-          );
-        })}
+              </a>
+            );
+          })}
+        </div>
       </div>
-
       {/* Footer */}
-      <div className="max-w-2xl mx-auto mt-16 text-center">
-        <p className="text-gray-500 text-sm">Made with 💙 by Bastian</p>
-        <p className="text-gray-600 text-xs mt-2">
-          © 2024 bbastian.dev - All rights reserved
-        </p>
-      </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 
