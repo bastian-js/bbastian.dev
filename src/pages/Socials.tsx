@@ -1,18 +1,29 @@
-import React, { useState } from "react";
-import {
-  Github,
-  Linkedin,
-  Mail,
-  Instagram,
-  Twitter,
-  Globe,
-  Music,
-  MessageCircle,
-  Code,
-} from "lucide-react";
-import Footer from "../components/Footer";
+import { useState, useEffect, useRef } from "react";
+import { Github, Mail, Instagram, Twitter, Globe, Music } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const useReveal = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && setVisible(true),
+      { threshold: 0.15 },
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, visible };
+};
 
 function Socials() {
+  const header = useReveal();
+  const cards = useReveal();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const socialLinks = [
@@ -65,7 +76,7 @@ function Socials() {
       name: "Email",
       username: "contact@bbastian.dev",
       description: "Send me a message",
-      url: "mailto:contact@bbastian.dev",
+      url: "/contact",
       icon: Mail,
       color: "from-orange-500 to-red-600",
       hoverColor: "hover:shadow-orange-500/30",
@@ -74,129 +85,173 @@ function Socials() {
 
   return (
     <>
+      <style>{`
+        @keyframes glowPulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.5), 0 0 60px rgba(59, 130, 246, 0.4);
+          }
+        }
+
+        @keyframes checkmarkBounce {
+          0% {
+            transform: scale(0) rotate(-45deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.15) rotate(10deg);
+          }
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+          }
+        }
+
+        @keyframes successSlideIn {
+          0% {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes successSlideOut {
+          0% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+        }
+
+        @keyframes pulseGreen {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        .profile-pic {
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .profile-container:hover .profile-pic {
+          transform: scale(1.08);
+        }
+
+        .profile-container:hover {
+          animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        .checkmark-icon {
+          animation: checkmarkBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .success-message {
+          animation: successSlideIn 0.5s ease-out forwards;
+        }
+
+        .success-message.exit {
+          animation: successSlideOut 0.5s ease-in forwards;
+        }
+
+        .pulsing {
+          animation: pulseGreen 1.5s ease-in-out infinite;
+        }
+      `}</style>
       <div className="min-h-screen bg-[#0a0a0a] text-white py-20 px-6">
-        {/* Header Section */}
-        <div className="max-w-2xl mx-auto text-center mb-12">
-          <div className="mb-6 inline-block">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 mx-auto">
+        {/* Header */}
+        <div
+          ref={header.ref}
+          className={`max-w-2xl mx-auto text-center mb-14 transition-all duration-1000 ${
+            header.visible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-10"
+          }`}
+        >
+          <div className="mb-6">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 p-[3px]">
               <img
                 src="/profile_picture.png"
                 alt="Profile"
-                className="w-full h-full rounded-full object-cover border-4 border-[#0a0a0a]"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  e.currentTarget.parentElement!.innerHTML =
-                    '<div class="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold">B</div>';
-                }}
+                className="profile-pic w-full h-full rounded-full object-cover border-4 border-[#0a0a0a]"
               />
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Bastian
+          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            Socials
           </h1>
 
-          <p className="text-gray-400 text-lg mb-2">Full-Stack Developer</p>
-
-          <p className="text-gray-500 max-w-md mx-auto">
-            Building cool stuff with code. Connect with me on your favorite
-            platform below.
+          <p className="text-gray-400 text-base">
+            Building cool stuff with code. Connect with me below.
           </p>
         </div>
 
-        {/* Social Links Grid */}
-        <div className="max-w-2xl mx-auto space-y-4">
+        {/* Cards */}
+        <div
+          ref={cards.ref}
+          className={`max-w-2xl mx-auto space-y-4 transition-all duration-1000 ${
+            cards.visible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-10"
+          }`}
+        >
           {socialLinks.map((link, index) => {
             const Icon = link.icon;
+
             return (
-              <a
+              <Link
                 key={index}
-                href={link.url}
+                to={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className={`
-                group relative block w-full p-6 rounded-2xl
-                bg-[#1a1a1a] border border-white/5
-                transition-all duration-300 ease-out
-                hover:scale-[1.02] hover:border-white/10
-                hover:shadow-2xl ${link.hoverColor}
-                active:scale-[0.98]
-              `}
+                className="
+                  relative group block w-full
+                  bg-[#1a1a1a] border border-white/5
+                  rounded-2xl px-6 py-6
+                  transition-all duration-300
+                  hover:scale-[1.02] hover:border-white/10
+                "
               >
-                {/* Gradient overlay on hover */}
                 <div
-                  className={`
-                  absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10
-                  bg-gradient-to-r ${link.color}
-                  transition-opacity duration-300
-                `}
+                  className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 bg-gradient-to-r ${link.color}`}
                 />
 
                 <div className="relative flex items-center gap-5">
-                  {/* Icon */}
                   <div
                     className={`
-                    flex-shrink-0 w-14 h-14 rounded-xl
-                    bg-gradient-to-br ${link.color}
-                    flex items-center justify-center
-                    transition-transform duration-300
-                    ${
-                      hoveredIndex === index
-                        ? "scale-110 rotate-10"
-                        : "scale-100"
-                    }
-                    shadow-lg
-                  `}
+                      w-14 h-14 rounded-xl
+                      bg-gradient-to-br ${link.color}
+                      flex items-center justify-center
+                      transition-transform
+                      ${hoveredIndex === index ? "scale-110 rotate-6" : ""}
+                    `}
                   >
                     <Icon className="w-7 h-7 text-white" />
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl font-semibold text-white">
-                        {link.name}
-                      </h3>
-                      <span className="text-sm text-gray-500">
-                        {link.username}
-                      </span>
-                    </div>
-                    <p className="text-gray-400 text-sm text-left">
-                      {link.description}
-                    </p>
-                  </div>
-
-                  {/* Arrow */}
-                  <div
-                    className={`
-                    flex-shrink-0 text-gray-400 transition-all duration-300
-                    ${hoveredIndex === index ? "translate-x-1 text-white" : ""}
-                  `}
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold">{link.name}</h3>
+                    <p className="text-sm text-gray-400">{link.description}</p>
                   </div>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </div>
       </div>
-      {/* Footer */}
-      <Footer />
     </>
   );
 }

@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 // GitHub Stats Route
 app.get("/api/github-stats", async (req, res) => {
@@ -29,7 +30,7 @@ app.get("/api/github-stats", async (req, res) => {
     // Repos
     const reposRes = await fetch(
       `https://api.github.com/users/${username}/repos?per_page=100`,
-      { headers }
+      { headers },
     );
     const repos = await reposRes.json();
 
@@ -63,7 +64,7 @@ app.get("/api/github-stats", async (req, res) => {
     // Account age
     const createdAt = new Date(user.created_at);
     const yearsActive = Math.floor(
-      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24 * 365)
+      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24 * 365),
     );
 
     res.json({
@@ -83,7 +84,7 @@ const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
 
 const basic = Buffer.from(
-  `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`
+  `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
 ).toString("base64");
 const NOW_PLAYING_ENDPOINT =
   "https://api.spotify.com/v1/me/player/currently-playing";
@@ -105,13 +106,20 @@ async function getAccessToken() {
     }),
   });
 
-  const data = await response.json();
+  const text = await response.text();
 
-  if (!data.access_token) {
-    throw new Error("No Spotify access token");
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    console.error("Spotify token raw response:", text);
+    throw new Error("Invalid Spotify token response");
   }
 
-  console.log("Spotify token response:", data);
+  if (!data.access_token) {
+    console.error("Spotify token error:", data);
+    throw new Error("No Spotify access token");
+  }
 
   return data;
 }
@@ -155,51 +163,64 @@ app.get("/api/spotify/now-playing", async (req, res) => {
   try {
     const nowPlaying = await getNowPlaying();
 
-    if (nowPlaying && nowPlaying.is_playing) {
-      // Currently playing
-      const track = nowPlaying.item;
-      return res.json({
-        status: "playing",
-        track: {
-          title: track.name,
-          artist: track.artists.map((artist) => artist.name).join(", "),
-          album: track.album.name,
-          albumArt: track.album.images[0]?.url || "",
-          isPlaying: nowPlaying.is_playing,
-          progress: nowPlaying.progress_ms,
-          duration: track.duration_ms,
-          url: track.external_urls.spotify,
-        },
-      });
-    } else {
-      // Not playing - get last played
-      const recentlyPlayed = await getRecentlyPlayed();
+    if (nowPlaying && nowPlaying.is_playing && nowPlaying.item) {
+      const item = nowPlaying.item;
 
-      if (
-        recentlyPlayed &&
-        recentlyPlayed.items &&
-        recentlyPlayed.items.length > 0
-      ) {
-        const track = recentlyPlayed.items[0].track;
+      // 🎵 SONG
+      if (item.type === "track") {
         return res.json({
-          status: "idle",
-          lastPlayed: {
-            title: track.name,
-            artist: track.artists.map((artist) => artist.name).join(", "),
-            albumArt: track.album.images[0]?.url || "",
+          status: "playing",
+          type: "track",
+          track: {
+            title: item.name,
+            artist: item.artists.map((a) => a.name).join(", "),
+            album: item.album.name,
+            albumArt: item.album.images[0]?.url || "",
+            isPlaying: nowPlaying.is_playing,
+            progress: nowPlaying.progress_ms,
+            duration: item.duration_ms,
+            url: item.external_urls.spotify,
           },
         });
-      } else {
+      }
+
+      // 🎙️ PODCAST
+      if (item.type === "episode") {
         return res.json({
-          status: "idle",
+          status: "playing",
+          type: "episode",
+          episode: {
+            title: item.name,
+            show: item.show.name,
+            description: item.description,
+            image: item.images?.[0]?.url || item.show.images?.[0]?.url || "",
+            progress: nowPlaying.progress_ms,
+            duration: item.duration_ms,
+            url: item.external_urls.spotify,
+          },
         });
       }
     }
+
+    // fallback: recently played
+    const recentlyPlayed = await getRecentlyPlayed();
+
+    if (recentlyPlayed?.items?.length > 0) {
+      const track = recentlyPlayed.items[0].track;
+      return res.json({
+        status: "idle",
+        lastPlayed: {
+          title: track.name,
+          artist: track.artists.map((a) => a.name).join(", "),
+          albumArt: track.album.images[0]?.url || "",
+        },
+      });
+    }
+
+    return res.json({ status: "idle" });
   } catch (error) {
     console.error("Spotify API Error:", error);
-    return res.json({
-      status: "error",
-    });
+    return res.json({ status: "error" });
   }
 });
 
@@ -207,6 +228,11 @@ app.get("/api/spotify/now-playing", async (req, res) => {
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: "Too many requests. Please try again later.",
+    });
+  },
 });
 
 // Validation
@@ -230,7 +256,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.post("/api/contact", limiter, async (req, res) => {
+app.post("/api/contact", limiter, async (req, res) => {
   try {
     const data = schema.parse(req.body);
 
@@ -249,10 +275,10 @@ ${data.message}
 
     res.json({ success: true });
   } catch (err) {
+    console.error("Contact API Error:", err); // ← WICHTIG!
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: "Invalid input" });
     }
-    console.error(err);
     res.status(500).json({ error: "Mail failed" });
   }
 });

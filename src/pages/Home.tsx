@@ -1,4 +1,3 @@
-import Footer from "../components/Footer";
 import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
@@ -78,8 +77,6 @@ function Home() {
       <h2 className="text-4xl font-bold mt-5">Technologies</h2>
 
       <TechnologiesGrid items={technologiesGridItems} />
-
-      <Footer currentPage="home" />
     </div>
   );
 }

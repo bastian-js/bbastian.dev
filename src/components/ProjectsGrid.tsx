@@ -1,6 +1,7 @@
 import React from "react";
 import { ExternalLink, Github } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Project {
   title: string;
@@ -26,7 +27,7 @@ const ProjectCard: React.FC<Project> = ({
   title,
   description,
   technologies,
-  image,
+  //image,
   images,
   githubUrl,
   liveUrl,
@@ -51,7 +52,7 @@ const ProjectCard: React.FC<Project> = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (cardRef.current) {
@@ -75,7 +76,7 @@ const ProjectCard: React.FC<Project> = ({
   const prevImage = () => {
     if (images) {
       setCurrentImageIndex(
-        (prev) => (prev - 1 + images.length) % images.length
+        (prev) => (prev - 1 + images.length) % images.length,
       );
     }
   };
@@ -115,30 +116,28 @@ const ProjectCard: React.FC<Project> = ({
 
           <div className="flex gap-3 mt-auto pt-4">
             {showGithub && githubUrl && (
-              <a
-                href={githubUrl}
+              <Link
+                to={githubUrl}
                 target="_blank"
-                rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white rounded-lg hover:bg-white/10 transition-colors"
               >
                 <Github className="w-4 h-4" />
                 <span>GitHub</span>
-              </a>
+              </Link>
             )}
 
             {showLiveDemo && (
               <>
                 {liveUrl ? (
-                  <a
-                    href={liveUrl}
+                  <Link
+                    to={liveUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors hover:opacity-80"
                     style={{ backgroundColor: color }}
                   >
                     <ExternalLink className="w-4 h-4" />
                     <span>Live Demo</span>
-                  </a>
+                  </Link>
                 ) : (
                   <button
                     onClick={handleLiveDemoClick}
@@ -252,15 +251,14 @@ const ProjectCard: React.FC<Project> = ({
 
               <div className="flex gap-3 flex-wrap justify-end mt-10">
                 {showGithub && githubUrl && (
-                  <a
-                    href={githubUrl}
+                  <Link
+                    to={githubUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="flex items-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white rounded-lg hover:bg-white/10 transition-colors"
                   >
                     <Github className="w-5 h-5" />
                     <span>View on GitHub</span>
-                  </a>
+                  </Link>
                 )}
 
                 <button

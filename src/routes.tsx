@@ -1,3 +1,4 @@
+import AboutSection from "./pages/About";
 import Contact from "./pages/Contact";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
@@ -19,6 +20,10 @@ const routes = [
   {
     path: "/contact",
     element: <Contact />,
+  },
+  {
+    path: "/about",
+    element: <AboutSection />,
   },
 ];
 

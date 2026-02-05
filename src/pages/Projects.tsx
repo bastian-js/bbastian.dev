@@ -1,7 +1,5 @@
-import Footer from "../components/Footer";
 import Infobox from "../components/Infobox";
 import ProjectsGrid from "../components/ProjectsGrid";
-import TechnologiesGrid from "../components/TechnologiesGrid";
 
 function Projects() {
   const infoboxItems = [
@@ -65,23 +63,15 @@ function Projects() {
       githubUrl: "https://github.com/bastian-js/bbastian.xyz-old",
     },
     {
-      title: "Task Manager",
+      title: "DropNote",
       description:
-        "Simple yet effective task management application with priority sorting and deadline tracking functionality.",
-      technologies: ["React", "TypeScript", "Local Storage"],
-      color: "#EC4899",
-      githubUrl: "https://github.com/yourusername/task-manager",
-      liveUrl: "#",
+        "A minimal macOS menu bar app for quickly creating and managing notes without interrupting your workflow.",
+      longDescription:
+        "DropNote is a lightweight macOS menu bar application designed for fast note-taking. It allows users to create and manage multiple tab-based notes, stores all data locally in a JSON file, and focuses on speed, simplicity, and distraction-free usage rather than feature overload.",
+      technologies: ["Swift", "SwiftUI", "macOS"],
+      color: "#10B981",
+      githubUrl: "https://github.com/bastian-js/dropnote",
     },
-  ];
-
-  const technologiesGridItems = [
-    { name: "TypeScript", icon: "/typescript.svg" },
-    { name: "JavaScript", icon: "/javascript.svg" },
-    { name: "React", icon: "/react.svg" },
-    { name: "C#", icon: "/csharp.svg" },
-    { name: "HTML", icon: "/html.svg" },
-    { name: "CSS", icon: "/css.svg" },
   ];
 
   return (
@@ -89,14 +79,6 @@ function Projects() {
       <Infobox items={infoboxItems} />
 
       <ProjectsGrid projects={projects} />
-
-      <h2 className="text-4xl font-bold mt-5 text-center -mb-8">
-        Technologies
-      </h2>
-
-      <TechnologiesGrid items={technologiesGridItems} />
-
-      <Footer currentPage="projects" />
     </div>
   );
 }

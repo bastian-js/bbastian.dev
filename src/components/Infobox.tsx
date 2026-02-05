@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Star, GitFork, Users, Code } from "lucide-react";
+import { Star, GitFork, Code } from "lucide-react";
 
 interface InfoboxItem {
   title: string;
@@ -31,11 +31,13 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
   const [stats, setStats] = useState<GitHubStats | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/github-stats")
+    fetch("https://api.bbastian.dev/api/github-stats")
       .then((res) => res.json())
       .then(setStats)
       .catch(() => {});
   }, []);
+
+  const isLoading = !stats;
 
   return (
     <div className="w-full bg-[#0a0a0a] py-16 px-4">
@@ -80,63 +82,90 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
                   </p>
                 </div>
 
-                {/* RIGHT STATS */}
-                {stats && (
-                  <div className="hidden md:flex flex-col justify-center">
-                    <div className="bg-[#141414] border border-white/5 rounded-xl px-6 py-5 flex flex-col gap-6 min-w-[220px]">
-                      {/* Core Stats */}
-                      <div className="flex items-center gap-4">
-                        <GitFork className="w-6 h-6 text-emerald-400" />
-                        <div>
-                          <p className="!text-1xl text-left font-bold text-white">
-                            {stats.repos}
-                          </p>
-                          <p className="!text-sm text-gray-400">Repositories</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <Star className="w-6 h-6 text-yellow-400" />
-                        <div>
-                          <p className="text-1xl text-left font-bold text-white">
-                            {stats.stars}
-                          </p>
-                          <p className="!text-sm text-gray-400">Stars</p>
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="h-px bg-white/5" />
-
-                      {/* Languages */}
-                      <div className="flex items-center gap-2 text-gray-300">
-                        <Code className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium">
-                          Most used languages
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        {stats.languages.map((lang) => (
-                          <div
-                            key={lang.name}
-                            className="flex justify-between text-sm"
-                          >
-                            <span className="text-gray-300">{lang.name}</span>
-                            <span className="text-gray-400">
-                              {lang.percent}%
+                {/* RIGHT STATS – IMMER SICHTBAR */}
+                <div className="hidden md:flex flex-col">
+                  <div className="bg-[#141414] border border-white/5 rounded-xl px-6 py-5 flex flex-col gap-6 min-w-[220px]">
+                    {/* Repos */}
+                    <div className="flex items-center gap-4">
+                      <GitFork className="w-6 h-6 text-emerald-400" />
+                      <div className="flex flex-col items-start text-left">
+                        <p className="text-xl font-bold text-white">
+                          {isLoading ? (
+                            <span className="animate-pulse text-gray-600">
+                              •••
                             </span>
-                          </div>
-                        ))}
+                          ) : (
+                            stats.repos
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-400">Repositories</p>
                       </div>
-
-                      {/* Active years */}
-                      <p className="!text-sm text-gray-500 pt-1">
-                        Active for {stats.yearsActive}+ years
-                      </p>
                     </div>
+
+                    {/* Stars */}
+                    <div className="flex items-center gap-4">
+                      <Star className="w-6 h-6 text-yellow-400" />
+                      <div className="flex flex-col items-start text-left">
+                        <p className="text-xl font-bold text-white">
+                          {isLoading ? (
+                            <span className="animate-pulse text-gray-600">
+                              •••
+                            </span>
+                          ) : (
+                            stats.stars
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-400">Stars</p>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-white/5" />
+
+                    {/* Languages */}
+                    <div className="flex items-center gap-2 text-gray-300">
+                      <Code className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium">
+                        Most used languages
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      {isLoading
+                        ? Array.from({ length: 3 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex justify-between text-sm animate-pulse"
+                            >
+                              <span className="text-gray-600">Loading</span>
+                              <span className="text-gray-700">--%</span>
+                            </div>
+                          ))
+                        : stats.languages.map((lang) => (
+                            <div
+                              key={lang.name}
+                              className="flex justify-between text-sm"
+                            >
+                              <span className="text-gray-300">{lang.name}</span>
+                              <span className="text-gray-400">
+                                {lang.percent}%
+                              </span>
+                            </div>
+                          ))}
+                    </div>
+
+                    {/* Active years */}
+                    <p className="text-sm text-gray-500 pt-1">
+                      {isLoading ? (
+                        <span className="animate-pulse">
+                          Active for — years
+                        </span>
+                      ) : (
+                        `Active for ${stats.yearsActive}+ years`
+                      )}
+                    </p>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           ))}

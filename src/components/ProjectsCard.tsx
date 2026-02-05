@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Link } from "lucide-react";
 
 interface ProjectCardProps {
   title: string;
@@ -32,7 +32,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (cardRef.current) {
@@ -90,27 +90,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Links */}
         <div className="flex gap-3 mt-4">
           {githubUrl && (
-            <a
-              href={githubUrl}
+            <Link
+              to={githubUrl}
               target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white rounded-lg hover:bg-white/10 transition-colors"
             >
               <Github className="w-4 h-4" />
               <span>GitHub</span>
-            </a>
+            </Link>
           )}
           {liveUrl && (
-            <a
-              href={liveUrl}
+            <Link
+              to={liveUrl}
               target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors"
               style={{ backgroundColor: color }}
             >
               <ExternalLink className="w-4 h-4" />
               <span>Live Demo</span>
-            </a>
+            </Link>
           )}
         </div>
       </div>
