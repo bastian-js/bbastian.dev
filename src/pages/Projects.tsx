@@ -25,6 +25,15 @@ function Projects() {
       badge: "COMING SOON",
     },
     {
+      title: "PiggyTrack",
+      description:
+        "Track your cash savings, roll the Lucky Dice to grow your balance daily, and hit every goal — one piggy bank at a time. All data stays on your device.",
+      technologies: ["expo", "React Native", "TypeScript"],
+      color: "#FE2E8B",
+      showGithub: false,
+      liveUrl: "https://piggytrack.bbastian.dev",
+    },
+    {
       title: "DailyBite",
       description:
         "Calorie tracking app with a refined UI and Austrian food products integrated into the database for accurate nutrition tracking.",
