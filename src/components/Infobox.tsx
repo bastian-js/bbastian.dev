@@ -33,11 +33,20 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
   useEffect(() => {
     fetch("https://api.bbastian.dev/api/github-stats")
       .then((res) => res.json())
-      .then(setStats)
+      .then((data) => {
+        setStats({
+          repos: Number(data?.repos ?? 0),
+          stars: Number(data?.stars ?? 0),
+          followers: Number(data?.followers ?? 0),
+          yearsActive: Number(data?.yearsActive ?? 0),
+          languages: Array.isArray(data?.languages) ? data.languages : [],
+        });
+      })
       .catch(() => {});
   }, []);
 
   const isLoading = !stats;
+  const languages = stats?.languages ?? [];
 
   return (
     <div className="w-full bg-[#0a0a0a] py-16 px-4">
@@ -53,7 +62,7 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
                 <div className="flex-1 text-left">
                   {/* Title */}
                   <div className="flex items-center gap-4 mb-2">
-                    <div className="w-30 h-30 rounded-full overflow-hidden flex-shrink-0">
+                    <div className="w-30 h-30 rounded-full overflow-hidden shrink-0">
                       <img
                         src={item.image}
                         alt={item.image_alt || item.title}
@@ -141,7 +150,7 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
                               <span className="text-gray-700">--%</span>
                             </div>
                           ))
-                        : stats.languages.map((lang) => (
+                        : languages.map((lang) => (
                             <div
                               key={lang.name}
                               className="flex justify-between text-sm"

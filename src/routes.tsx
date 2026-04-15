@@ -1,6 +1,7 @@
 import AboutSection from "./pages/About";
 import Contact from "./pages/Contact";
 import Home from "./pages/Home";
+import Noury from "./pages/Noury";
 import Projects from "./pages/Projects";
 import Socials from "./pages/Socials";
 
@@ -8,6 +9,10 @@ const routes = [
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/noury",
+    element: <Noury />,
   },
   {
     path: "/projects",

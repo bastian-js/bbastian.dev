@@ -1,9 +1,16 @@
+import { Link } from "react-router-dom";
 import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
 
+interface TimelineItem {
+  year: string;
+  title: string;
+  description: string;
+}
+
 function Home() {
-  const timelineItems = [
+  const timelineItems: TimelineItem[] = [
     {
       year: "2020",
       title: "School Start",
@@ -46,6 +53,17 @@ function Home() {
       description:
         "Started building DailyBite, a calorie tracking app with a refined UI and Austrian food products integrated into the database.",
     },
+    {
+      year: "February 2026",
+      title: "Savings App: PiggyTrack",
+      description:
+        "Started building PiggyTrack, a savings app focused on helping users save money with a simple and intuitive interface, featuring a piggy bank design and goal tracking.",
+    },
+    {
+      year: "February 2026",
+      title: "Release: PiggyTrack",
+      description: "Official release of PiggyTrack to the public.",
+    },
   ];
 
   const infoboxItems = [
@@ -63,6 +81,7 @@ function Home() {
     { name: "TypeScript", icon: "/typescript.svg" },
     { name: "JavaScript", icon: "/javascript.svg" },
     { name: "React", icon: "/react.svg" },
+    { name: "Expo", icon: "/expo.svg" },
     { name: "C#", icon: "/csharp.svg" },
     { name: "HTML", icon: "/html.svg" },
     { name: "CSS", icon: "/css.svg" },
@@ -70,6 +89,31 @@ function Home() {
 
   return (
     <div className="pt-22">
+      <Link
+        to="/noury"
+        className="block mx-auto max-w-6xl px-4 pt-6 group"
+      >
+        <div className="relative overflow-hidden rounded-2xl border border-emerald-300/25 bg-linear-to-br from-[#111f1a] via-[#101010] to-[#0c1310] px-5 py-4 transition-colors duration-200 group-hover:border-emerald-300/50">
+          <div className="pointer-events-none absolute -top-10 -right-8 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="relative flex items-center gap-4 flex-wrap">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/15 px-3 py-0.5 text-xs font-bold tracking-[0.18em] text-emerald-100 uppercase shadow-[0_0_16px_rgba(52,211,153,0.2)] shrink-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+              Coming Soon
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-black text-white">Noury</span>
+              <span className="text-sm text-emerald-300 font-medium">/ˈnuː.ri/</span>
+            </div>
+            <p className="text-sm text-gray-400 flex-1 min-w-0">
+              AI calorie tracking — log meals by photo or manually.
+            </p>
+            <span className="text-xs text-emerald-300 font-semibold group-hover:underline shrink-0">
+              Learn more →
+            </span>
+          </div>
+        </div>
+      </Link>
+
       <Infobox items={infoboxItems} />
 
       <VerticalTimeline items={timelineItems} />
