@@ -149,13 +149,7 @@ const TechnologiesGrid = ({ items }: TechnologiesGridProps) => {
           margin: "0 auto",
         }}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "10px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {items.map((item, i) => (
             <TechCard
               key={i}

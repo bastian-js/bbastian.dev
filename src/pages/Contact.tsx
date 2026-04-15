@@ -74,7 +74,7 @@ function Contact() {
         throw new Error("Message must be at least 10 characters long");
       }
 
-      const res = await fetch("https://api.bbastian.dev/api/contact", {
+      const res = await fetch("https://api.bbastian.dev/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

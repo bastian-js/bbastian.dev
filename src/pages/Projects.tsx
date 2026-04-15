@@ -25,24 +25,33 @@ function Projects() {
       badge: "COMING SOON",
     },
     {
+      title: "Noury",
+      description:
+        "A modern nutrition and fitness app focused on calorie tracking, meal logging, and personalized progress with a clean, minimal UI and scalable backend.",
+      technologies: ["TypeScript", "React Native", "Express", "MariaDB"],
+      color: "#4ACDB5",
+      showGithub: false,
+      badgeColor: "#3B82F6",
+      badge: "COMING SOON",
+    },
+    {
       title: "PiggyTrack",
       description:
         "Track your cash savings, roll the Lucky Dice to grow your balance daily, and hit every goal — one piggy bank at a time. All data stays on your device.",
-      technologies: ["expo", "React Native", "TypeScript"],
+      technologies: ["Expo", "React Native", "TypeScript"],
       color: "#FE2E8B",
       showGithub: false,
       liveUrl: "https://piggytrack.bbastian.dev",
     },
     {
-      title: "DailyBite",
+      title: "DropNote",
       description:
-        "Calorie tracking app with a refined UI and Austrian food products integrated into the database for accurate nutrition tracking.",
-      technologies: ["Swift", "iOS", "MariaDB"],
-      color: "#3B82F6",
-      githubUrl: "https://github.com/yourusername/dailybite",
-      badgeColor: "#3B82F6",
-      badge: "COMING SOON",
-      showGithub: false,
+        "A minimal macOS menu bar app for quickly creating and managing notes without interrupting your workflow.",
+      longDescription:
+        "DropNote is a lightweight macOS menu bar application designed for fast note-taking. It allows users to create and manage multiple tab-based notes, stores all data locally in a JSON file, and focuses on speed, simplicity, and distraction-free usage rather than feature overload.",
+      technologies: ["Swift", "SwiftUI", "macOS"],
+      color: "#10B981",
+      githubUrl: "https://github.com/bastian-js/dropnote",
     },
     {
       title: "Giveaway Discord Bot",
@@ -70,16 +79,6 @@ function Projects() {
       technologies: ["HTML", "CSS", "JavaScript"],
       color: "#8B5CF6",
       githubUrl: "https://github.com/bastian-js/bbastian.xyz-old",
-    },
-    {
-      title: "DropNote",
-      description:
-        "A minimal macOS menu bar app for quickly creating and managing notes without interrupting your workflow.",
-      longDescription:
-        "DropNote is a lightweight macOS menu bar application designed for fast note-taking. It allows users to create and manage multiple tab-based notes, stores all data locally in a JSON file, and focuses on speed, simplicity, and distraction-free usage rather than feature overload.",
-      technologies: ["Swift", "SwiftUI", "macOS"],
-      color: "#10B981",
-      githubUrl: "https://github.com/bastian-js/dropnote",
     },
   ];
 

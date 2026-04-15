@@ -17,14 +17,13 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
   );
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Default Farben falls keine angegeben
   const defaultColors = [
-    "#6EE7B7", // Grün
-    "#3B82F6", // Blau
-    "#F59E0B", // Orange
-    "#EF4444", // Rot
-    "#8B5CF6", // Lila
-    "#EC4899", // Pink
+    "#6EE7B7",
+    "#3B82F6",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#EC4899",
   ];
 
   useEffect(() => {
@@ -43,7 +42,7 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
             }
           });
         },
-        { threshold: 0.2 }
+        { threshold: 0.15 }
       );
 
       observer.observe(ref);
@@ -56,13 +55,16 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
   }, [items.length]);
 
   return (
-    <div className="w-full min-h-screen bg-[#0a0a0a] py-16 px-4">
+    <div className="w-full bg-[#0a0a0a] py-16 px-4">
       <div className="max-w-6xl mx-auto relative">
-        {/* Mittellinie */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-[#2a2a2a] -translate-x-1/2" />
 
-        {/* Timeline Items */}
-        <div className="relative space-y-20">
+        {/* Desktop: center line */}
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-[#2a2a2a] -translate-x-1/2" />
+
+        {/* Mobile: left line */}
+        <div className="md:hidden absolute left-4 top-0 bottom-0 w-0.5 bg-[#2a2a2a]" />
+
+        <div className="relative space-y-10 md:space-y-20">
           {items.map((item, index) => {
             const isLeft = index % 2 === 0;
             const itemColor =
@@ -76,15 +78,21 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
                 }}
                 className="relative"
               >
-                {/* Kreis auf der Linie - gleiche Farbe wie Year */}
+                {/* Desktop dot */}
                 <div
-                  className="absolute left-1/2 top-0 -translate-x-1/2 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 z-10 transition-all duration-300 ease-in-out hover:scale-150 hover:rotate-180"
+                  className="hidden md:block absolute left-1/2 top-0 -translate-x-1/2 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 z-10 transition-all duration-300 ease-in-out hover:scale-150 hover:rotate-180"
                   style={{ borderColor: itemColor }}
                 />
 
-                {/* Content Container mit Fly-in Animation */}
+                {/* Mobile dot */}
                 <div
-                  className={`flex ${
+                  className="md:hidden absolute left-4 top-1.5 -translate-x-1/2 w-3 h-3 rounded-full bg-[#0a0a0a] border-2 z-10"
+                  style={{ borderColor: itemColor }}
+                />
+
+                {/* Desktop: alternating left/right layout */}
+                <div
+                  className={`hidden md:flex ${
                     isLeft ? "justify-start" : "justify-end"
                   } transition-all duration-700 ease-out ${
                     visibleItems[index]
@@ -95,26 +103,43 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
                   }`}
                 >
                   <div className={`w-[45%] ${isLeft ? "pr-12" : "pl-12"}`}>
-                    <div className={`${isLeft ? "text-right" : "text-left"}`}>
-                      {/* Year mit individueller Farbe */}
+                    <div className={isLeft ? "text-right" : "text-left"}>
                       <h3
                         className="text-2xl font-bold mb-2"
                         style={{ color: itemColor }}
                       >
                         {item.year}
                       </h3>
-
-                      {/* Title */}
                       <h4 className="text-xl font-semibold text-white mb-3">
                         {item.title}
                       </h4>
-
-                      {/* Description */}
                       <p className="text-gray-400 leading-relaxed">
                         {item.description}
                       </p>
                     </div>
                   </div>
+                </div>
+
+                {/* Mobile: single column layout */}
+                <div
+                  className={`md:hidden pl-10 transition-all duration-700 ease-out ${
+                    visibleItems[index]
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-4"
+                  }`}
+                >
+                  <h3
+                    className="text-lg font-bold mb-1"
+                    style={{ color: itemColor }}
+                  >
+                    {item.year}
+                  </h3>
+                  <h4 className="text-base font-semibold text-white mb-1.5">
+                    {item.title}
+                  </h4>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </div>
             );

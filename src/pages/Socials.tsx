@@ -64,15 +64,6 @@ function Socials() {
       hoverColor: "hover:shadow-green-500/30",
     },
     {
-      name: "Portfolio",
-      username: "bbastian.dev",
-      description: "Visit my main website",
-      url: "/",
-      icon: Globe,
-      color: "from-cyan-500 to-blue-600",
-      hoverColor: "hover:shadow-cyan-500/30",
-    },
-    {
       name: "Email",
       username: "contact@bbastian.dev",
       description: "Send me a message",

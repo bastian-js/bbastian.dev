@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import nodemailer from "nodemailer";
-import { z } from "zod";
+import { success, z } from "zod";
+import { db } from "./db.js";
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // GitHub Stats Route
-app.get("/api/github-stats", async (req, res) => {
+app.get("/github-stats", async (req, res) => {
   try {
     const headers = {
       Authorization: `token ${process.env.GITHUB_TOKEN}`,
@@ -159,7 +160,7 @@ async function getRecentlyPlayed() {
 }
 
 // Spotify Now Playing Route
-app.get("/api/spotify/now-playing", async (req, res) => {
+app.get("/spotify/now-playing", async (req, res) => {
   try {
     const nowPlaying = await getNowPlaying();
 
@@ -256,7 +257,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-app.post("/api/contact", limiter, async (req, res) => {
+app.post("/contact", limiter, async (req, res) => {
   try {
     const data = schema.parse(req.body);
 
@@ -275,11 +276,46 @@ ${data.message}
 
     res.json({ success: true });
   } catch (err) {
-    console.error("Contact API Error:", err); // ← WICHTIG!
+    console.error("Contact API Error:", err);
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: "Invalid input" });
     }
     res.status(500).json({ error: "Mail failed" });
+  }
+});
+
+app.post("/noury/waitlist", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res
+      .status(500)
+      .json({ success: false, message: "missing required fields." });
+  }
+
+  try {
+    const [rows] = await db.execute(
+      `
+      INSERT INTO noury_wait_list
+      (email) VALUES (?)
+      `,
+      [email],
+    );
+
+    if (rows.affectedRows === 1) {
+      return res
+        .status(200)
+        .json({ success: true, message: "email signed up." });
+    }
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY")
+      return res
+        .status(400)
+        .json({ success: false, message: "email already signed up." });
+
+    return res
+      .status(500)
+      .json({ success: false, message: "internal server error.", error: err });
   }
 });
 

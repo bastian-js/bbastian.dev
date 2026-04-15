@@ -1,6 +1,39 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Noury() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [alreadySignedUp] = useState(
+    () => localStorage.getItem("noury_waitlist") === "true"
+  );
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch("https://api.bbastian.dev/noury/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? "Something went wrong.");
+      }
+      localStorage.setItem("noury_waitlist", "true");
+      setStatus("success");
+      setEmail("");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      setStatus("error");
+    }
+  }
+
   return (
     <div className="pt-20 pb-20 px-4 text-left">
       {/* Back button — top left */}
@@ -88,6 +121,71 @@ function Noury() {
           </div>
         </div>
 
+        {/* Waitlist */}
+        {!alreadySignedUp && (
+        <div className="rounded-3xl border border-emerald-300/20 bg-[#0b1612] p-7 md:p-10">
+          <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-emerald-400/10 blur-[80px]" />
+          <p className="text-xs font-bold tracking-[0.18em] text-emerald-300 uppercase mb-1">
+            Waitlist
+          </p>
+          <h2 className="text-3xl font-black text-white">
+            Be the first to know.
+          </h2>
+          <p className="mt-1.5 text-sm text-gray-500">
+            Drop your email and we'll notify you the moment Noury launches.
+          </p>
+
+          {status === "success" ? (
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                className="text-emerald-400 shrink-0"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+              <p className="text-sm font-semibold text-emerald-300">
+                You're on the list — we'll be in touch!
+              </p>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="mt-6 flex flex-col sm:flex-row gap-3"
+            >
+              <input
+                type="email"
+                required
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30 transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-black transition-colors duration-150 shrink-0"
+              >
+                {status === "loading" ? "Joining…" : "Join Waitlist"}
+              </button>
+            </form>
+          )}
+
+          {status === "error" && (
+            <p className="mt-3 text-xs text-red-400">{errorMsg}</p>
+          )}
+        </div>
+        )}
+
         {/* App Store CTA */}
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/3 px-6 py-5">
           <div>
@@ -111,7 +209,14 @@ function Noury() {
               strokeWidth={1.6}
             >
               <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
-              <line x1="12" y1="18" x2="12.01" y2="18" strokeLinecap="round" strokeWidth={2} />
+              <line
+                x1="12"
+                y1="18"
+                x2="12.01"
+                y2="18"
+                strokeLinecap="round"
+                strokeWidth={2}
+              />
             </svg>
             <div className="text-left leading-tight">
               <p className="text-[10px] font-medium text-white/60 tracking-wide">

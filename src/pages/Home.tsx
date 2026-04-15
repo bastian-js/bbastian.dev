@@ -64,6 +64,12 @@ function Home() {
       title: "Release: PiggyTrack",
       description: "Official release of PiggyTrack to the public.",
     },
+    {
+      year: "April 2026",
+      title: "Began developing Noury",
+      description:
+        "Started building Noury, focusing on a clean, modern app experience with features like calorie tracking, exercise integration, and a scalable backend architecture.",
+    },
   ];
 
   const infoboxItems = [
@@ -89,10 +95,7 @@ function Home() {
 
   return (
     <div className="pt-22">
-      <Link
-        to="/noury"
-        className="block mx-auto max-w-6xl px-4 pt-6 group"
-      >
+      <Link to="/noury" className="block mx-auto max-w-6xl px-4 pt-6 group">
         <div className="relative overflow-hidden rounded-2xl border border-emerald-300/25 bg-linear-to-br from-[#111f1a] via-[#101010] to-[#0c1310] px-5 py-4 transition-colors duration-200 group-hover:border-emerald-300/50">
           <div className="pointer-events-none absolute -top-10 -right-8 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="relative flex items-center gap-4 flex-wrap">
@@ -102,7 +105,9 @@ function Home() {
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-black text-white">Noury</span>
-              <span className="text-sm text-emerald-300 font-medium">/ˈnuː.ri/</span>
+              <span className="text-sm text-emerald-300 font-medium">
+                /ˈnuː.ri/
+              </span>
             </div>
             <p className="text-sm text-gray-400 flex-1 min-w-0">
               AI calorie tracking — log meals by photo or manually.

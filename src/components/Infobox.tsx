@@ -31,7 +31,7 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
   const [stats, setStats] = useState<GitHubStats | null>(null);
 
   useEffect(() => {
-    fetch("https://api.bbastian.dev/api/github-stats")
+    fetch("https://api.bbastian.dev/github-stats")
       .then((res) => res.json())
       .then((data) => {
         setStats({
