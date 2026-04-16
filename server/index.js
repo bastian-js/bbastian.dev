@@ -10,10 +10,7 @@ import { db } from "./db.js";
 dotenv.config();
 
 const app = express();
-const allowedOrigins = [
-  "http://localhost:3030",
-  "http://localhost:5173",
-];
+const allowedOrigins = ["http://localhost:3030", "http://localhost:5173"];
 
 app.use(
   cors({
@@ -344,6 +341,21 @@ app.post("/noury/waitlist", async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "internal server error.", error: err });
+  }
+});
+
+app.get("/noury/waitlist/count", async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      `
+      SELECT COUNT(*) AS count FROM noury_wait_list
+      `,
+    );
+
+    res.json({ count: rows[0].count });
+  } catch (err) {
+    console.error("Waitlist count error:", err);
+    res.status(500).json({ error: "internal server error." });
   }
 });
 

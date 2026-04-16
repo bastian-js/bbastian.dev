@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function Noury() {
@@ -8,8 +8,16 @@ function Noury() {
   >("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [alreadySignedUp] = useState(
-    () => localStorage.getItem("noury_waitlist") === "true"
+    () => localStorage.getItem("noury_waitlist") === "true",
   );
+  const [waitlistCount, setWaitlistCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("https://api.bbastian.dev/noury/waitlist/count")
+      .then((r) => r.json())
+      .then((d) => setWaitlistCount(d.count))
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,13 +87,21 @@ function Noury() {
           <div className="pointer-events-none absolute top-1/2 left-1/3 h-40 w-40 rounded-full bg-teal-300/10 blur-[50px]" />
 
           <div className="relative p-8 md:p-14">
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-3.5 py-1 text-[11px] font-bold tracking-[0.2em] text-emerald-200 uppercase">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-3.5 py-1 text-[11px] font-bold tracking-[0.2em] text-emerald-200 uppercase">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Coming Soon
               </span>
-              Coming Soon
-            </span>
+              {waitlistCount !== null && waitlistCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">
+                  <span className="text-emerald-400 font-bold">{waitlistCount}</span>
+                  {waitlistCount === 1 ? "person" : "people"} on the waitlist
+                </span>
+              )}
+            </div>
 
             <div className="mt-6 flex items-end gap-4 flex-wrap">
               <h1 className="text-6xl font-black tracking-tight text-white md:text-7xl">
@@ -123,67 +139,67 @@ function Noury() {
 
         {/* Waitlist */}
         {!alreadySignedUp && (
-        <div className="rounded-3xl border border-emerald-300/20 bg-[#0b1612] p-7 md:p-10">
-          <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-emerald-400/10 blur-[80px]" />
-          <p className="text-xs font-bold tracking-[0.18em] text-emerald-300 uppercase mb-1">
-            Waitlist
-          </p>
-          <h2 className="text-3xl font-black text-white">
-            Be the first to know.
-          </h2>
-          <p className="mt-1.5 text-sm text-gray-500">
-            Drop your email and we'll notify you the moment Noury launches.
-          </p>
+          <div className="rounded-3xl border border-emerald-300/20 bg-[#0b1612] p-7 md:p-10">
+            <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-emerald-400/10 blur-[80px]" />
+            <p className="text-xs font-bold tracking-[0.18em] text-emerald-300 uppercase mb-1">
+              Waitlist
+            </p>
+            <h2 className="text-3xl font-black text-white">
+              Be the first to know.
+            </h2>
+            <p className="mt-1.5 text-sm text-gray-500">
+              Drop your email and we'll notify you the moment Noury launches.
+            </p>
 
-          {status === "success" ? (
-            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                className="text-emerald-400 shrink-0"
+            {status === "success" ? (
+              <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  className="text-emerald-400 shrink-0"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+                <p className="text-sm font-semibold text-emerald-300">
+                  You're on the list — we'll be in touch!
+                </p>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="mt-6 flex flex-col sm:flex-row gap-3"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.5 12.75l6 6 9-13.5"
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30 transition-colors"
                 />
-              </svg>
-              <p className="text-sm font-semibold text-emerald-300">
-                You're on the list — we'll be in touch!
-              </p>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="mt-6 flex flex-col sm:flex-row gap-3"
-            >
-              <input
-                type="email"
-                required
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30 transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-black transition-colors duration-150 shrink-0"
-              >
-                {status === "loading" ? "Joining…" : "Join Waitlist"}
-              </button>
-            </form>
-          )}
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-black transition-colors duration-150 shrink-0"
+                >
+                  {status === "loading" ? "Joining…" : "Join Waitlist"}
+                </button>
+              </form>
+            )}
 
-          {status === "error" && (
-            <p className="mt-3 text-xs text-red-400">{errorMsg}</p>
-          )}
-        </div>
+            {status === "error" && (
+              <p className="mt-3 text-xs text-red-400">{errorMsg}</p>
+            )}
+          </div>
         )}
 
         {/* App Store CTA */}
