@@ -1,73 +1,125 @@
-# React + TypeScript + Vite
+# bbastian.dev
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio website and full-stack web application. Built with React, TypeScript, and a Node.js backend.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Frontend**
 
-## React Compiler
+- React 19 + TypeScript
+- React Router 7
+- Tailwind CSS 4
+- Vite
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Backend**
 
-## Expanding the ESLint configuration
+- Node.js + Express
+- MySQL
+- Nodemailer
+- Zod
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Portfolio** — Projects overview with status indicators and live links
+- **Timeline** — Milestone timeline from 2020 to present
+- **Spotify integration** — Shows currently playing track in the navbar (live refresh every 5s)
+- **GitHub stats** — Fetches live repo count, stars, and top languages via the GitHub API
+- **Contact form** — Rate-limited form with server-side validation, delivered via SMTP
+- **Noury waitlist** — Landing page + email waitlist backed by MySQL for the upcoming Noury app
+- **About** — Developer philosophy and approach
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+
+- MySQL database
+- Spotify Developer App (Client ID + Secret + Refresh Token)
+- GitHub Personal Access Token
+
+### Frontend
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Backend
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd server
+npm install
+node index.js
 ```
+
+### Environment Variables
+
+**Frontend (`.env`)**
+
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+**Backend (`server/.env`)**
+
+Copy `server/.env.example` to `server/.env` and fill in the values.
+
+```env
+PORT=3001
+
+# MySQL
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=
+DB_PASS=
+DB_NAME=
+
+# GitHub
+GITHUB_TOKEN=
+GITHUB_USERNAME=
+
+# Spotify
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REFRESH_TOKEN=
+
+# Email (SMTP)
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=
+MAIL_TO=
+```
+
+## Scripts
+
+| Command           | Description                          |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | Start Vite dev server with HMR       |
+| `npm run build`   | TypeScript check + production build  |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint`    | Run ESLint                           |
+
+## Project Structure
+
+```
+├── src/
+│   ├── components/       # Shared UI components (NavBar, Footer, …)
+│   ├── pages/            # Route-level page components
+│   ├── routes.tsx        # Route definitions
+│   └── App.tsx           # Root layout
+├── server/
+│   ├── index.js          # Express server + all API endpoints
+│   └── db.js             # MySQL connection
+└── public/               # Static assets
+```
+
+## API Endpoints
+
+| Method | Path                   | Description                                |
+| ------ | ---------------------- | ------------------------------------------ |
+| `GET`  | `/github-stats`        | Repo count, stars, top languages           |
+| `GET`  | `/spotify/now-playing` | Current or last played Spotify track       |
+| `POST` | `/contact`             | Contact form (rate-limited, Zod-validated) |
+| `POST` | `/noury/waitlist`      | Add email to Noury waitlist                |
