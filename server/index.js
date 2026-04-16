@@ -4,16 +4,37 @@ import dotenv from "dotenv";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import nodemailer from "nodemailer";
-import { success, z } from "zod";
+import { z } from "zod";
 import { db } from "./db.js";
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:3030",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(new Error("No origin"), false);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (/^https:\/\/([\w-]+\.)*bbastian\.dev$/.test(origin))
+        return callback(null, true);
+      callback(new Error("Not allowed by CORS"), false);
+    },
+  }),
+);
 app.use(express.json());
 
-// GitHub Stats Route
+/**
+ * GET /github-stats
+ * Returns repo count, stars, years active and top languages.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
 app.get("/github-stats", async (req, res) => {
   try {
     const headers = {
@@ -22,23 +43,19 @@ app.get("/github-stats", async (req, res) => {
 
     const username = process.env.GITHUB_USERNAME;
 
-    // User
     const userRes = await fetch(`https://api.github.com/users/${username}`, {
       headers,
     });
     const user = await userRes.json();
 
-    // Repos
     const reposRes = await fetch(
       `https://api.github.com/users/${username}/repos?per_page=100`,
       { headers },
     );
     const repos = await reposRes.json();
 
-    // Stars
     const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
 
-    // Languages aggregieren
     const languageTotals = {};
 
     for (const repo of repos) {
@@ -62,7 +79,6 @@ app.get("/github-stats", async (req, res) => {
       .sort((a, b) => b.percent - a.percent)
       .slice(0, 3);
 
-    // Account age
     const createdAt = new Date(user.created_at);
     const yearsActive = Math.floor(
       (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24 * 365),
@@ -79,7 +95,7 @@ app.get("/github-stats", async (req, res) => {
   }
 });
 
-// Spotify API credentials
+/* Spotify */
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -93,7 +109,6 @@ const RECENTLY_PLAYED_ENDPOINT =
   "https://api.spotify.com/v1/me/player/recently-played?limit=1";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
-// Get access token
 async function getAccessToken() {
   const response = await fetch(TOKEN_ENDPOINT, {
     method: "POST",
@@ -125,7 +140,6 @@ async function getAccessToken() {
   return data;
 }
 
-// Get currently playing track
 async function getNowPlaying() {
   const { access_token } = await getAccessToken();
 
@@ -142,7 +156,6 @@ async function getNowPlaying() {
   return response.json();
 }
 
-// Get recently played track
 async function getRecentlyPlayed() {
   const { access_token } = await getAccessToken();
 
@@ -159,7 +172,13 @@ async function getRecentlyPlayed() {
   return response.json();
 }
 
-// Spotify Now Playing Route
+/**
+ * GET /spotify/now-playing
+ * Returns the currently playing or last played Spotify track/episode.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
 app.get("/spotify/now-playing", async (req, res) => {
   try {
     const nowPlaying = await getNowPlaying();
@@ -167,7 +186,6 @@ app.get("/spotify/now-playing", async (req, res) => {
     if (nowPlaying && nowPlaying.is_playing && nowPlaying.item) {
       const item = nowPlaying.item;
 
-      // 🎵 SONG
       if (item.type === "track") {
         return res.json({
           status: "playing",
@@ -185,7 +203,6 @@ app.get("/spotify/now-playing", async (req, res) => {
         });
       }
 
-      // 🎙️ PODCAST
       if (item.type === "episode") {
         return res.json({
           status: "playing",
@@ -203,7 +220,6 @@ app.get("/spotify/now-playing", async (req, res) => {
       }
     }
 
-    // fallback: recently played
     const recentlyPlayed = await getRecentlyPlayed();
 
     if (recentlyPlayed?.items?.length > 0) {
@@ -225,7 +241,7 @@ app.get("/spotify/now-playing", async (req, res) => {
   }
 });
 
-// Rate limit
+/* Contact */
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
@@ -236,27 +252,32 @@ const limiter = rateLimit({
   },
 });
 
-// Validation
 const schema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email(),
   message: z.string().min(10).max(2000),
 });
 
-// SMTP (Mailcow)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
-  secure: false, // true bei 465
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false, // wichtig bei selbstem Zertifikat
+    rejectUnauthorized: false,
   },
 });
 
+/**
+ * POST /contact
+ * Validates input and sends a contact form email via SMTP.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
 app.post("/contact", limiter, async (req, res) => {
   try {
     const data = schema.parse(req.body);
@@ -284,6 +305,13 @@ ${data.message}
   }
 });
 
+/**
+ * POST /noury/waitlist
+ * Adds an email to the Noury waitlist.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
 app.post("/noury/waitlist", async (req, res) => {
   const { email } = req.body;
 
