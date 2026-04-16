@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Github, Mail, Instagram, Twitter, Globe, Music } from "lucide-react";
+import { Github, Mail, Instagram, Twitter, Music } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const useReveal = () => {
