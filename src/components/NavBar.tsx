@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Menu } from "lucide-react";
+import { X, Menu, Keyboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface SpotifyTrack {
@@ -34,7 +34,11 @@ interface SpotifyStatus {
   };
 }
 
-function NavBar() {
+interface NavBarProps {
+  onOpenShortcuts?: () => void;
+}
+
+function NavBar({ onOpenShortcuts }: NavBarProps) {
   const location = useLocation();
   const path = location.pathname;
 
@@ -120,8 +124,43 @@ function NavBar() {
       {/* NAV */}
       <nav className="fixed top-0 left-0 w-full bg-[#0a0a0a] px-4 sm:px-6 lg:px-8 py-4 z-50 border-b border-white/5 grid grid-cols-3 items-center">
         {/* Left */}
-        <Link to="/" className="text-xl font-semibold">
-          bbastian.dev
+        <Link to="/" className="flex items-center gap-2.5 group w-fit">
+          <span className="relative font-mono text-sm leading-none select-none overflow-hidden block">
+            <span className="flex transition-transform duration-300 group-hover:-translate-y-full">
+              <span className="text-emerald-400">&lt;</span>
+              <span className="text-white font-bold">B</span>
+              <span className="text-emerald-400">/&gt;</span>
+            </span>
+            <span className="absolute inset-0 flex translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <span className="text-emerald-400">&lt;/</span>
+              <span className="text-white font-bold">B</span>
+              <span className="text-emerald-400">&gt;</span>
+            </span>
+          </span>
+          <span className="relative text-xl font-semibold overflow-hidden block">
+            <span className="flex">
+              {"bbastian.dev".split("").map((char, i) => (
+                <span
+                  key={i}
+                  className="inline-block transition-transform duration-300 group-hover:-translate-y-full"
+                  style={{ transitionDelay: `${i * 30}ms` }}
+                >
+                  {char}
+                </span>
+              ))}
+            </span>
+            <span className="absolute inset-0 flex">
+              {"bbastian.dev".split("").map((char, i) => (
+                <span
+                  key={i}
+                  className="inline-block transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-emerald-400"
+                  style={{ transitionDelay: `${i * 30}ms` }}
+                >
+                  {char}
+                </span>
+              ))}
+            </span>
+          </span>
         </Link>
 
         {/* Center */}
@@ -140,7 +179,7 @@ function NavBar() {
         {/* Right */}
         <div className="flex items-center justify-end">
           {/* Desktop nav links */}
-          <div className="hidden md:flex gap-8 lg:gap-10 text-sm">
+          <div className="hidden md:flex items-center gap-8 lg:gap-10 text-sm">
             {navLinks.map((href) => (
               <Link
                 key={href}
@@ -163,6 +202,13 @@ function NavBar() {
                 />
               </Link>
             ))}
+            <button
+              onClick={onOpenShortcuts}
+              title="Keyboard shortcuts (?)"
+              className="pb-2 text-gray-500 hover:text-gray-200 transition cursor-pointer"
+            >
+              <Keyboard className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Mobile hamburger */}
@@ -205,11 +251,16 @@ function NavBar() {
       )}
 
       {/* SPOTIFY POPUP */}
-      {showSpotify && (
-        <div
-          className="fixed z-50 w-[calc(100vw-32px)] max-w-96"
-          style={{ top: "72px", left: "50%", transform: "translateX(-50%)" }}
-        >
+      <div
+        className={`fixed z-50 w-[calc(100vw-32px)] max-w-96 transition-[opacity,transform] duration-200 ease-out ${
+          showSpotify ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        style={{
+          top: "72px",
+          left: "50%",
+          transform: `translateX(-50%) translateY(${showSpotify ? "0px" : "-8px"})`,
+        }}
+      >
           <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 shadow-2xl">
             <div className="flex justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -307,14 +358,12 @@ function NavBar() {
             )}
           </div>
         </div>
-      )}
-
-      {showSpotify && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowSpotify(false)}
-        />
-      )}
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-200 ${
+          showSpotify ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setShowSpotify(false)}
+      />
     </>
   );
 }
