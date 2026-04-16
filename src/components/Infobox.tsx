@@ -25,6 +25,18 @@ interface GitHubStats {
   followers: number;
   yearsActive: number;
   languages: LanguageStat[];
+  lastActive: string | null;
+}
+
+function formatLastActive(iso: string): string {
+  const date = new Date(iso);
+  const diffDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "yesterday";
+  if (diffDays === 2) return "2 days ago";
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  return `${dd}-${mm}-${date.getFullYear()}`;
 }
 
 const Infobox: React.FC<InfoboxProps> = ({ items }) => {
@@ -40,6 +52,7 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
           followers: Number(data?.followers ?? 0),
           yearsActive: Number(data?.yearsActive ?? 0),
           languages: Array.isArray(data?.languages) ? data.languages : [],
+          lastActive: data?.lastActive ?? null,
         });
       })
       .catch(() => {});
@@ -166,13 +179,25 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
                     {/* Active years */}
                     <p className="text-sm text-gray-500 pt-1">
                       {isLoading ? (
-                        <span className="animate-pulse">
-                          Active for — years
-                        </span>
+                        <span className="animate-pulse">Active for — years</span>
                       ) : (
                         `Active for ${stats.yearsActive}+ years`
                       )}
                     </p>
+
+                    {/* Last active */}
+                    <div className="flex items-center justify-between text-sm pt-0">
+                      <span className="text-gray-500">Last active</span>
+                      <span className="text-gray-300 font-medium">
+                        {isLoading ? (
+                          <span className="animate-pulse text-gray-600">———</span>
+                        ) : stats.lastActive ? (
+                          formatLastActive(stats.lastActive)
+                        ) : (
+                          "—"
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

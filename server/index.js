@@ -81,11 +81,17 @@ app.get("/github-stats", async (req, res) => {
       (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24 * 365),
     );
 
+    const lastActive = repos
+      .filter((r) => !r.fork)
+      .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))[0]
+      ?.pushed_at ?? null;
+
     res.json({
       repos: repos.length,
       stars,
       yearsActive,
       languages,
+      lastActive,
     });
   } catch (err) {
     res.status(500).json({ error: "GitHub API failed" });
