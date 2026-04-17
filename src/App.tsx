@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import routes from "./routes";
 import NavBar from "./components/NavBar";
@@ -9,21 +9,31 @@ import ShortcutsOverlay from "./components/ShortcutsOverlay";
 import NotFound from "./pages/NotFound";
 
 const KONAMI = [
-  "ArrowUp", "ArrowUp",
-  "ArrowDown", "ArrowDown",
-  "ArrowLeft", "ArrowRight",
-  "ArrowLeft", "ArrowRight",
-  "b", "a",
+  "ArrowUp",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowLeft",
+  "ArrowRight",
+  "b",
+  "a",
 ];
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [minesweeper, setMinesweeper] = useState(false);
   const [hacker, setHacker] = useState(false);
   const [shortcuts, setShortcuts] = useState(false);
 
   const seqRef = useRef<string[]>([]);
   const konamiIdxRef = useRef(0);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -53,7 +63,7 @@ function App() {
       }
 
       if (key === "?") {
-        setShortcuts(s => !s);
+        setShortcuts((s) => !s);
         return;
       }
 
@@ -70,12 +80,24 @@ function App() {
       // Navigation (only when no overlay open)
       if (minesweeper || hacker || shortcuts) return;
       switch (key.toLowerCase()) {
-        case "h": navigate("/"); break;
-        case "p": navigate("/projects"); break;
-        case "s": navigate("/socials"); break;
-        case "a": navigate("/about"); break;
-        case "c": navigate("/contact"); break;
-        case "g": window.open("https://github.com/bastian-js", "_blank"); break;
+        case "h":
+          navigate("/");
+          break;
+        case "p":
+          navigate("/projects");
+          break;
+        case "s":
+          navigate("/socials");
+          break;
+        case "a":
+          navigate("/about");
+          break;
+        case "c":
+          navigate("/contact");
+          break;
+        case "g":
+          window.open("https://github.com/bastian-js", "_blank");
+          break;
       }
     };
 

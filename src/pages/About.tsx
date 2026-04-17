@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Calendar,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CODING_SINCE = 2021;
 const yearsCoding = new Date().getFullYear() - CODING_SINCE;
@@ -126,22 +127,27 @@ export default function About() {
         </div>
 
         {/* Currently building */}
-        <div className="bg-[#111] border border-emerald-500/15 rounded-2xl p-5 flex items-start gap-4">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mt-1.5 shrink-0" />
-          <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-              Currently building
-            </p>
-            <p className="text-base font-semibold text-white mb-1">
-              Noury — AI Calorie Tracker
-            </p>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              A nutrition and fitness app focused on calorie tracking, meal
-              logging and personalized progress with a clean minimal UI and
-              scalable backend.
-            </p>
+        <Link
+          to="/noury"
+          className="block hover:scale-[1.01] transition-transform"
+        >
+          <div className="bg-[#111] border border-emerald-500/15 rounded-2xl p-5 flex items-start gap-4">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mt-1.5 shrink-0" />
+            <div>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                Currently building
+              </p>
+              <p className="text-base font-semibold text-white mb-1">
+                Noury — AI Calorie Tracker
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                A nutrition and fitness app focused on calorie tracking, meal
+                logging and personalized progress with a clean minimal UI and
+                scalable backend.
+              </p>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

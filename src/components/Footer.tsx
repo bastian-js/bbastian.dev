@@ -1,5 +1,5 @@
 import React from "react";
-import { GitBranch, MessageCircle, Camera, MessageSquare } from "lucide-react";
+import { Github, MessageCircle, Instagram, Twitter } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Footer: React.FC = () => {
@@ -7,10 +7,25 @@ const Footer: React.FC = () => {
   const currentPage = location.pathname;
 
   const socialLinks = [
-    { name: "Discord", icon: MessageCircle, url: "/contact", color: "#5865F2" },
-    { name: "Twitter", icon: MessageSquare, url: "https://x.com/knuddelghg", color: "#1DA1F2" },
-    { name: "Instagram", icon: Camera, url: "https://www.instagram.com/bbastiann._/", color: "#E4405F" },
-    { name: "GitHub", icon: GitBranch, url: "https://github.com/bastian-js", color: "#FFFFFF" },
+    { name: "Contact", icon: MessageCircle, url: "/contact", color: "#5865F2" },
+    {
+      name: "Twitter",
+      icon: Twitter,
+      url: "https://x.com/knuddelghg",
+      color: "#1DA1F2",
+    },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      url: "https://www.instagram.com/bbastiann._/",
+      color: "#E4405F",
+    },
+    {
+      name: "GitHub",
+      icon: Github,
+      url: "https://github.com/bastian-js",
+      color: "#FFFFFF",
+    },
   ];
 
   const pages = [
@@ -27,16 +42,7 @@ const Footer: React.FC = () => {
       <div className="border-t border-white/5" />
 
       <div className="mx-auto max-w-5xl px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-
-          {/* Brand */}
-          <div className="flex flex-col gap-3">
-            <span className="text-white font-bold text-base tracking-tight">bastian-js</span>
-            <p className="text-sm text-gray-600 leading-relaxed max-w-[200px]">
-              Building digital experiences one project at a time.
-            </p>
-          </div>
-
+        <div className="grid grid-cols-3 gap-10 mb-12">
           {/* Navigate */}
           <div>
             <h3 className="text-[10px] font-bold tracking-[0.18em] text-gray-600 uppercase mb-4">
@@ -59,21 +65,39 @@ const Footer: React.FC = () => {
                   {page.name}
                 </Link>
               ))}
+            </nav>
+          </div>
+
+          {/* Projects */}
+          <div>
+            <h3 className="text-[10px] font-bold tracking-[0.18em] text-gray-600 uppercase mb-4">
+              Projects
+            </h3>
+            <nav className="flex flex-col gap-2.5">
               {/* Noury */}
               <Link
                 to="/noury"
                 className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-white transition-colors duration-200 group w-fit"
               >
                 <div
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                    currentPage === "/noury"
-                      ? "bg-emerald-400"
-                      : "bg-white/15 group-hover:bg-white/40"
-                  }`}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${currentPage === "/noury" ? "bg-emerald-400" : "bg-white/15 group-hover:bg-white/40"}`}
                 />
                 Noury
                 <span className="rounded-full bg-emerald-400/15 border border-emerald-300/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-emerald-400 uppercase leading-none">
                   Soon
+                </span>
+              </Link>
+              {/* DropNote */}
+              <Link
+                to="/dropnote"
+                className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-white transition-colors duration-200 group w-fit"
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${currentPage === "/dropnote" ? "bg-[#3994E7]" : "bg-white/15 group-hover:bg-white/40"}`}
+                />
+                DropNote
+                <span className="rounded-full bg-blue-500/15 border border-blue-400/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-blue-400 uppercase leading-none">
+                  Live
                 </span>
               </Link>
               {/* PiggyTrack */}
@@ -82,14 +106,26 @@ const Footer: React.FC = () => {
                 className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-white transition-colors duration-200 group w-fit"
               >
                 <div
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                    currentPage === "/piggytrack"
-                      ? "bg-[#FF2E8C]"
-                      : "bg-white/15 group-hover:bg-white/40"
-                  }`}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${currentPage === "/piggytrack" ? "bg-[#FF2E8C]" : "bg-white/15 group-hover:bg-white/40"}`}
                 />
                 PiggyTrack
                 <span className="rounded-full bg-pink-500/15 border border-pink-400/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-pink-400 uppercase leading-none">
+                  Live
+                </span>
+              </Link>
+              {/* ProPerform */}
+              <Link
+                to="/properform"
+                className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-white transition-colors duration-200 group w-fit"
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${currentPage === "/properform" ? "bg-[#1F3A8A]" : "bg-white/15 group-hover:bg-white/40"}`}
+                />
+                ProPerform
+                <span
+                  className="rounded-full border border-blue-700/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-blue-400 uppercase leading-none"
+                  style={{ background: "#1F3A8A30" }}
+                >
                   Live
                 </span>
               </Link>

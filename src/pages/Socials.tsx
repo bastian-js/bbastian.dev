@@ -1,16 +1,12 @@
 import {
-  GitBranch,
   Mail,
-  Camera,
-  MessageCircle,
   Music,
   ArrowUpRight,
+  Github,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 
-// Brand icon substitutes (lucide deprecated the originals)
-const GithubIcon = GitBranch;
-const InstagramIcon = Camera;
-const TwitterIcon = MessageCircle;
 import { Link } from "react-router-dom";
 
 const socialLinks = [
@@ -19,7 +15,7 @@ const socialLinks = [
     username: "@bastian-js",
     description: "Check out my code & projects",
     url: "https://github.com/bastian-js",
-    icon: GithubIcon,
+    icon: Github,
     color: "#e5e7eb",
     external: true,
   },
@@ -28,7 +24,7 @@ const socialLinks = [
     username: "@bbastiann._",
     description: "Follow my journey",
     url: "https://www.instagram.com/bbastiann._/",
-    icon: InstagramIcon,
+    icon: Instagram,
     color: "#f472b6",
     external: true,
   },
@@ -37,7 +33,7 @@ const socialLinks = [
     username: "@knuddelghg",
     description: "Thoughts & updates",
     url: "https://x.com/knuddelghg",
-    icon: TwitterIcon,
+    icon: Twitter,
     color: "#e5e7eb",
     external: true,
   },
