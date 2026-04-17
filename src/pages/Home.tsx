@@ -124,7 +124,16 @@ function Home() {
 
       <VerticalTimeline items={timelineItems} />
 
-      <h2 className="text-4xl font-bold mt-5">Technologies</h2>
+      <div className="w-full bg-[#0a0a0a] pt-16 pb-0 px-4">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/8 bg-white/4 text-xs text-gray-400 font-medium tracking-wide mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            TECH STACK
+          </div>
+          <h2 className="text-4xl font-bold text-white mb-3">Technologies</h2>
+          <p className="text-gray-500 text-sm">Languages and frameworks I work with regularly.</p>
+        </div>
+      </div>
 
       <TechnologiesGrid items={technologiesGridItems} />
 

@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Code2,
-  Braces,
-  Atom,
-  Hash,
-  FileCode,
-  Palette,
-  Smartphone,
-} from "lucide-react";
+import { Code2, Braces, Atom, Hash, FileCode, Palette, Smartphone } from "lucide-react";
 
 interface TechnologyItem {
   name: string;
@@ -18,95 +10,44 @@ interface TechnologiesGridProps {
   items: TechnologyItem[];
 }
 
-interface TechCardProps {
-  item: TechnologyItem;
-  isWide: boolean;
-}
-
 const getIcon = (name: string) => {
-  const lowerName = name.toLowerCase();
-  const cls = "h-6 w-6";
-  if (lowerName.includes("expo")) return <Smartphone className={cls} />;
-  if (lowerName.includes("typescript")) return <Code2 className={cls} />;
-  if (lowerName.includes("javascript")) return <Braces className={cls} />;
-  if (lowerName.includes("react")) return <Atom className={cls} />;
-  if (lowerName.includes("c#") || lowerName.includes("csharp"))
-    return <Hash className={cls} />;
-  if (lowerName.includes("html")) return <FileCode className={cls} />;
-  if (lowerName.includes("css")) return <Palette className={cls} />;
-  return <Code2 className={cls} />;
+  const n = name.toLowerCase();
+  if (n.includes("expo")) return <Smartphone className="w-5 h-5" />;
+  if (n.includes("typescript")) return <Code2 className="w-5 h-5" />;
+  if (n.includes("javascript")) return <Braces className="w-5 h-5" />;
+  if (n.includes("react")) return <Atom className="w-5 h-5" />;
+  if (n.includes("c#") || n.includes("csharp")) return <Hash className="w-5 h-5" />;
+  if (n.includes("html")) return <FileCode className="w-5 h-5" />;
+  if (n.includes("css")) return <Palette className="w-5 h-5" />;
+  return <Code2 className="w-5 h-5" />;
 };
 
-const TechCard = ({ item, isWide }: TechCardProps) => {
+const TechCard = ({ item, isWide }: { item: TechnologyItem; isWide: boolean }) => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        gridColumn: isWide ? "1 / -1" : undefined,
-        background: hovered
-          ? "rgba(255,255,255,0.06)"
-          : "rgba(255,255,255,0.03)",
-        border: `1px solid ${hovered ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.07)"}`,
-        borderRadius: "20px",
-        padding: "28px 32px",
-        display: "flex",
-        alignItems: "center",
-        gap: "20px",
-        cursor: "default",
-        transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
-        transform: hovered ? "translateY(-2px)" : "translateY(0)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className={`flex items-center gap-4 px-6 py-5 rounded-2xl border transition-all duration-200 cursor-default ${
+        isWide ? "col-span-full" : ""
+      } ${
+        hovered
+          ? "bg-white/6 border-white/14 -translate-y-0.5"
+          : "bg-white/3 border-white/7"
+      }`}
     >
-      {/* subtle top shimmer */}
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "20px",
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* icon container */}
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: "14px",
-          background: hovered
-            ? "rgba(255,255,255,0.1)"
-            : "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: hovered ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.55)",
-          transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
-          flexShrink: 0,
-        }}
+        className={`w-11 h-11 rounded-[14px] border border-white/10 flex items-center justify-center shrink-0 transition-all duration-200 ${
+          hovered ? "bg-white/10 text-white/95" : "bg-white/6 text-white/55"
+        }`}
       >
         {getIcon(item.name)}
       </div>
-
       <span
-        style={{
-          fontFamily:
-            "-apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
-          fontSize: "15px",
-          fontWeight: 500,
-          letterSpacing: "-0.01em",
-          color: hovered ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.5)",
-          transition: "color 0.25s cubic-bezier(0.4,0,0.2,1)",
-        }}
+        className={`text-sm font-medium tracking-tight transition-colors duration-200 ${
+          hovered ? "text-white/90" : "text-white/50"
+        }`}
       >
         {item.name}
       </span>
@@ -118,37 +59,8 @@ const TechnologiesGrid = ({ items }: TechnologiesGridProps) => {
   const hasOdd = items.length % 2 !== 0;
 
   return (
-    <section
-      style={{
-        position: "relative",
-        width: "100%",
-        padding: "32px 24px",
-        fontFamily:
-          "-apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
-      }}
-    >
-      {/* ambient glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "60%",
-          height: "200px",
-          background:
-            "radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      <div
-        style={{
-          position: "relative",
-          maxWidth: "640px",
-          margin: "0 auto",
-        }}
-      >
+    <div className="w-full bg-[#0a0a0a] py-8 px-4">
+      <div className="max-w-2xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {items.map((item, i) => (
             <TechCard
@@ -159,7 +71,7 @@ const TechnologiesGrid = ({ items }: TechnologiesGridProps) => {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

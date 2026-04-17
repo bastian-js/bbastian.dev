@@ -69,10 +69,6 @@ function Projects() {
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-16 px-4">
       {/* Header */}
       <div className="max-w-lg mx-auto mb-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/8 bg-white/4 text-xs text-gray-400 font-medium tracking-wide mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          {projects.length} PROJECTS
-        </div>
         <h1 className="text-4xl font-bold tracking-tight text-white mb-3">
           Projects
         </h1>
