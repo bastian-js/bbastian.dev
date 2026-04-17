@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {
-  Dumbbell,
   Target,
   Zap,
   Users,
