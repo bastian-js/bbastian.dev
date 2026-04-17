@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-white/5 pt-6 text-center">
+        <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-sm text-gray-600">
             {currentYear} &copy;{" "}
             <a
@@ -124,8 +124,14 @@ const Footer: React.FC = () => {
             >
               bastian-js
             </a>
+            <span className="ml-2 text-gray-700">· All rights reserved.</span>
           </p>
-          <p className="mt-1 text-xs text-gray-700">All rights reserved.</p>
+          <Link
+            to="/privacy"
+            className="text-xs text-gray-600 hover:text-gray-400 transition-colors duration-200"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </footer>

@@ -8,6 +8,7 @@ interface TimelineItem {
   year: string;
   title: string;
   description: string;
+  link?: { label: string; url: string };
 }
 
 function Home() {
@@ -64,6 +65,7 @@ function Home() {
       year: "February 2026",
       title: "Release: PiggyTrack",
       description: "Official release of PiggyTrack to the public.",
+      link: { label: "piggytrack.bbastian.dev", url: "https://piggytrack.bbastian.dev" },
     },
     {
       year: "April 2026",
@@ -126,12 +128,10 @@ function Home() {
 
       <div className="w-full bg-[#0a0a0a] pt-16 pb-0 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/8 bg-white/4 text-xs text-gray-400 font-medium tracking-wide mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            TECH STACK
-          </div>
           <h2 className="text-4xl font-bold text-white mb-3">Technologies</h2>
-          <p className="text-gray-500 text-sm">Languages and frameworks I work with regularly.</p>
+          <p className="text-gray-500 text-sm">
+            Languages and frameworks I work with regularly.
+          </p>
         </div>
       </div>
 

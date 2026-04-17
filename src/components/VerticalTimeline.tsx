@@ -5,6 +5,7 @@ interface TimelineItem {
   title: string;
   description: string;
   color?: string;
+  link?: { label: string; url: string };
 }
 
 interface VerticalTimelineProps {
@@ -116,6 +117,11 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
                       <p className="text-gray-400 leading-relaxed">
                         {item.description}
                       </p>
+                      {item.link && (
+                        <a href={item.link.url} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-sm text-emerald-400 hover:underline">
+                          {item.link.label} →
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -140,6 +146,11 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
                   <p className="text-gray-400 text-sm leading-relaxed">
                     {item.description}
                   </p>
+                  {item.link && (
+                    <a href={item.link.url} target="_blank" rel="noopener noreferrer" className="inline-block mt-1.5 text-xs text-emerald-400 hover:underline">
+                      {item.link.label} →
+                    </a>
+                  )}
                 </div>
               </div>
             );
