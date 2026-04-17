@@ -1,7 +1,5 @@
-import React from "react";
-import { ExternalLink, Github } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { ExternalLink, Github, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Project {
   title: string;
@@ -17,231 +15,227 @@ interface Project {
   longDescription?: string;
   badge?: string;
   badgeColor?: string;
+  liveDemoLabel?: string;
 }
 
 interface ProjectsGridProps {
   projects: Project[];
 }
 
-const ProjectCard: React.FC<Project> = ({
+const ProjectCard: React.FC<Project & { index: number }> = ({
   title,
   description,
   technologies,
-  //image,
   images,
   githubUrl,
   liveUrl,
-  color = "#3B82F6",
+  color = "#34d399",
   showGithub = true,
   showLiveDemo = true,
   longDescription,
   badge,
-  badgeColor = "#10B981",
+  liveDemoLabel = "Live Demo",
+  index,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imgIndex, setImgIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1 },
+      ([entry]) => entry.isIntersecting && setVisible(true),
+      { threshold: 0.08 },
     );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const handleLiveDemoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowModal(true);
-  };
+  // Close modal on Escape
+  useEffect(() => {
+    if (!showModal) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setShowModal(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showModal]);
 
-  const nextImage = () => {
-    if (images) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }
-  };
-
-  const prevImage = () => {
-    if (images) {
-      setCurrentImageIndex(
-        (prev) => (prev - 1 + images.length) % images.length,
-      );
-    }
-  };
+  const hasDetails = !!(longDescription || (images && images.length > 0));
+  const showDetailsBtn = showLiveDemo && !liveUrl && hasDetails;
 
   return (
     <>
       <div
         ref={cardRef}
-        className={`
-        bg-[#1a1a1a] rounded-xl overflow-hidden
-        border border-white/5
-        hover:border-white/10
-        transition-all duration-500 ease-out
-        hover:scale-105 hover:shadow-2xl
-        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}
-      `}
+        className="flex flex-col bg-[#111] border border-white/6 rounded-2xl overflow-hidden transition-all duration-500 hover:border-white/12 hover:shadow-xl hover:shadow-black/30 group"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(20px)",
+          transition: `opacity 0.5s ease ${index * 60}ms, transform 0.5s ease ${index * 60}ms, border-color 0.2s, box-shadow 0.2s`,
+        }}
       >
-        <div className="p-6 flex flex-col h-full">
-          <h3 className="text-2xl font-bold mb-3" style={{ color }}>
-            {title}
-          </h3>
+        {/* Color accent bar */}
+        <div className="h-[3px] w-full shrink-0" style={{ background: color }} />
 
-          <p className="text-gray-400 leading-relaxed mb-4 !text-base">
-            {description}
-          </p>
-
-          <div className="flex flex-wrap gap-2 mb-4">
-            {technologies.map((tech, index) => (
+        <div className="flex flex-col flex-1 p-5 gap-3">
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-bold text-white leading-snug">{title}</h3>
+            {badge && (
               <span
-                key={index}
-                className="px-3 py-1 bg-[#0a0a0a] text-gray-300 text-sm rounded-full border border-white/10"
+                className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full text-white tracking-wide"
+                style={{ background: color + "33", color }}
+              >
+                {badge}
+              </span>
+            )}
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-500 leading-relaxed flex-1 text-left">{description}</p>
+
+          {/* Tech tags */}
+          <div className="flex flex-wrap gap-1.5">
+            {technologies.map((tech) => (
+              <span
+                key={tech}
+                className="px-2.5 py-1 text-xs text-gray-400 bg-white/4 border border-white/6 rounded-full"
               >
                 {tech}
               </span>
             ))}
           </div>
 
-          <div className="flex gap-3 mt-auto pt-4">
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-1">
             {showGithub && githubUrl && (
-              <Link
-                to={githubUrl}
+              <a
+                href={githubUrl}
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white rounded-lg hover:bg-white/10 transition-colors"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 hover:border-white/12 rounded-lg transition-all"
               >
-                <Github className="w-4 h-4" />
-                <span>GitHub</span>
-              </Link>
+                <Github className="w-3.5 h-3.5" />
+                GitHub
+              </a>
             )}
-
-            {showLiveDemo && (
-              <>
-                {liveUrl ? (
-                  <Link
-                    to={liveUrl}
-                    target="_blank"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors hover:opacity-80"
-                    style={{ backgroundColor: color }}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Live Demo</span>
-                  </Link>
-                ) : (
-                  <button
-                    onClick={handleLiveDemoClick}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors hover:opacity-80 whitespace-nowrap cursor-pointer"
-                    style={{ backgroundColor: color }}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>View Details</span>
-                  </button>
-                )}
-              </>
+            {liveUrl && showLiveDemo && (
+              <a
+                href={liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-black"
+                style={{ background: color }}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                {liveDemoLabel}
+              </a>
+            )}
+            {showDetailsBtn && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-black cursor-pointer"
+                style={{ background: color }}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Details
+              </button>
             )}
           </div>
         </div>
       </div>
 
+      {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="
-              bg-[#1a1a1a] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto 
-              border border-white/10 transform transition-all duration-300 
-              animate-modalIn
-            "
+            className="relative bg-[#111] border border-white/8 rounded-3xl w-full max-w-lg shadow-2xl shadow-black/60 overflow-hidden"
+            style={{
+              animation: "modalIn 0.2s ease-out forwards",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            {images && images.length > 0 ? (
-              <div className="relative w-full h-64 bg-[#0a0a0a] overflow-hidden">
+            <style>{`@keyframes modalIn { from { opacity:0; transform:scale(0.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }`}</style>
+
+            {/* Color bar */}
+            <div className="h-[3px]" style={{ background: color }} />
+
+            {/* Image carousel */}
+            {images && images.length > 0 && (
+              <div className="relative w-full h-52 bg-[#0a0a0a] overflow-hidden">
                 <img
-                  src={images[currentImageIndex]}
-                  alt={`${title} - Image ${currentImageIndex + 1}`}
+                  src={images[imgIndex]}
+                  alt={`${title} ${imgIndex + 1}`}
                   className="w-full h-full object-cover"
                 />
-                {badge && (
-                  <div
-                    className="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-sm font-semibold shadow-lg"
-                    style={{ backgroundColor: badgeColor }}
-                  >
-                    {badge}
-                  </div>
-                )}
-
                 {images.length > 1 && (
                   <>
                     <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      onClick={() => setImgIndex((p) => (p - 1 + images.length) % images.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition cursor-pointer"
                     >
-                      ←
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      onClick={() => setImgIndex((p) => (p + 1) % images.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition cursor-pointer"
                     >
-                      →
+                      <ChevronRight className="w-4 h-4" />
                     </button>
-
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                      {images.map((_, index) => (
-                        <div
-                          key={index}
-                          className={`w-2 h-2 rounded-full transition-colors ${
-                            index === currentImageIndex
-                              ? "bg-white"
-                              : "bg-white/30"
-                          }`}
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setImgIndex(i)}
+                          className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${i === imgIndex ? "bg-white scale-125" : "bg-white/30"}`}
                         />
                       ))}
                     </div>
                   </>
                 )}
               </div>
-            ) : badge ? (
-              <div className="relative w-full h-64 bg-[#0a0a0a] overflow-hidden flex items-center justify-center">
-                <div
-                  className="absolute top-4 right-4 px-3 py-1 rounded-full text-white text-sm font-semibold shadow-lg"
-                  style={{ backgroundColor: badgeColor }}
-                >
-                  {badge}
+            )}
+
+            {/* Content */}
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">{title}</h2>
+                  {badge && (
+                    <span
+                      className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide"
+                      style={{ background: color + "22", color }}
+                    >
+                      {badge}
+                    </span>
+                  )}
                 </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-600 hover:text-white transition p-1 cursor-pointer shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            ) : null}
 
-            <div className="p-8">
-              <h2 className="text-3xl font-bold mb-4" style={{ color }}>
-                {title}
-              </h2>
-
-              <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              {/* Description */}
+              <p className="text-sm text-gray-400 leading-relaxed mb-5">
                 {longDescription || description}
               </p>
 
+              {/* Tech */}
               <div className="mb-6">
-                <h3 className="text-white font-semibold mb-3 flex flex-wrap justify-start">
-                  Technologies Used:
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {technologies.map((tech, index) => (
+                <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2.5">Stack</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {technologies.map((tech) => (
                     <span
-                      key={index}
-                      className="px-4 py-2 bg-[#0a0a0a] text-gray-300 rounded-lg border border-white/10"
+                      key={tech}
+                      className="px-2.5 py-1 text-xs text-gray-400 bg-white/4 border border-white/6 rounded-full"
                     >
                       {tech}
                     </span>
@@ -249,22 +243,34 @@ const ProjectCard: React.FC<Project> = ({
                 </div>
               </div>
 
-              <div className="flex gap-3 flex-wrap justify-end mt-10">
+              {/* Actions */}
+              <div className="flex items-center gap-2 justify-end pt-2 border-t border-white/6">
                 {showGithub && githubUrl && (
-                  <Link
-                    to={githubUrl}
+                  <a
+                    href={githubUrl}
                     target="_blank"
-                    className="flex items-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white rounded-lg hover:bg-white/10 transition-colors"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 rounded-xl transition-all"
                   >
-                    <Github className="w-5 h-5" />
-                    <span>View on GitHub</span>
-                  </Link>
+                    <Github className="w-4 h-4" />
+                    GitHub
+                  </a>
                 )}
-
+                {liveUrl && (
+                  <a
+                    href={liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-all text-black"
+                    style={{ background: color }}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Live Demo
+                  </a>
+                )}
                 <button
                   onClick={() => setShowModal(false)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-colors hover:opacity-80 cursor-pointer"
-                  style={{ backgroundColor: color }}
+                  className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 rounded-xl transition-all cursor-pointer"
                 >
                   Close
                 </button>
@@ -280,10 +286,10 @@ const ProjectCard: React.FC<Project> = ({
 const ProjectsGrid: React.FC<ProjectsGridProps> = ({ projects }) => {
   return (
     <div className="w-full bg-[#0a0a0a] py-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <ProjectCard key={index} {...project} />
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map((project, i) => (
+            <ProjectCard key={i} index={i} {...project} />
           ))}
         </div>
       </div>

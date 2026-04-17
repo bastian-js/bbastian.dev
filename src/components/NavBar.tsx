@@ -44,10 +44,17 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
 
   const [showSpotify, setShowSpotify] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [spotifyData, setSpotifyData] = useState<SpotifyStatus>({
     status: "idle",
   });
   const [, setAudioData] = useState<number[]>(new Array(50).fill(0));
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Close mobile menu and spotify on route change
   useEffect(() => {
@@ -96,139 +103,108 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
         ? "Last Played"
         : "Offline";
 
-  const renderProgress = (progress: number, duration: number) => (
-    <>
-      <div className="relative h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
-        <div
-          className="absolute top-0 left-0 h-full bg-linear-to-r from-green-500 to-green-400"
-          style={{ width: `${(progress / duration) * 100}%` }}
-        />
-      </div>
-      <div className="flex justify-between text-xs text-gray-500 mt-2">
-        <span>
-          {Math.floor(progress / 60000)}:
-          {String(Math.floor((progress % 60000) / 1000)).padStart(2, "0")}
-        </span>
-        <span>
-          {Math.floor(duration / 60000)}:
-          {String(Math.floor((duration % 60000) / 1000)).padStart(2, "0")}
-        </span>
-      </div>
-    </>
-  );
-
   const navLinks = ["/projects", "/socials", "/about", "/contact"];
 
   return (
     <>
       {/* NAV */}
-      <nav className="fixed top-0 left-0 w-full bg-[#0a0a0a] px-4 sm:px-6 lg:px-8 py-4 z-50 border-b border-white/5 grid grid-cols-3 items-center">
-        {/* Left */}
-        <Link to="/" className="flex items-center gap-2.5 group w-fit">
-          <span className="relative font-mono text-sm leading-none select-none overflow-hidden block">
-            <span className="flex transition-transform duration-300 group-hover:-translate-y-full">
-              <span className="text-emerald-400">&lt;</span>
-              <span className="text-white font-bold">B</span>
-              <span className="text-emerald-400">/&gt;</span>
+      <nav className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-5xl">
+        <div className={`flex items-center justify-between px-4 sm:px-5 py-3 rounded-2xl border transition-all duration-300 ${
+          scrolled
+            ? "bg-[#0a0a0a]/95 backdrop-blur-xl border-white/10 shadow-xl shadow-black/30"
+            : "bg-[#0a0a0a]/75 backdrop-blur-md border-white/6"
+        }`}>
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group w-fit shrink-0">
+            <span className="relative font-mono text-sm leading-none select-none overflow-hidden block">
+              <span className="flex transition-transform duration-300 group-hover:-translate-y-full">
+                <span className="text-emerald-400">&lt;</span>
+                <span className="text-white font-bold">B</span>
+                <span className="text-emerald-400">/&gt;</span>
+              </span>
+              <span className="absolute inset-0 flex translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+                <span className="text-emerald-400">&lt;/</span>
+                <span className="text-white font-bold">B</span>
+                <span className="text-emerald-400">&gt;</span>
+              </span>
             </span>
-            <span className="absolute inset-0 flex translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-              <span className="text-emerald-400">&lt;/</span>
-              <span className="text-white font-bold">B</span>
-              <span className="text-emerald-400">&gt;</span>
+            <span className="relative text-xl font-semibold overflow-hidden block">
+              <span className="flex">
+                {"bbastian.dev".split("").map((char, i) => (
+                  <span
+                    key={i}
+                    className="inline-block transition-transform duration-300 group-hover:-translate-y-full"
+                    style={{ transitionDelay: `${i * 30}ms` }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
+              <span className="absolute inset-0 flex">
+                {"bbastian.dev".split("").map((char, i) => (
+                  <span
+                    key={i}
+                    className="inline-block transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-emerald-400"
+                    style={{ transitionDelay: `${i * 30}ms` }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
             </span>
-          </span>
-          <span className="relative text-xl font-semibold overflow-hidden block">
-            <span className="flex">
-              {"bbastian.dev".split("").map((char, i) => (
-                <span
-                  key={i}
-                  className="inline-block transition-transform duration-300 group-hover:-translate-y-full"
-                  style={{ transitionDelay: `${i * 30}ms` }}
-                >
-                  {char}
-                </span>
-              ))}
-            </span>
-            <span className="absolute inset-0 flex">
-              {"bbastian.dev".split("").map((char, i) => (
-                <span
-                  key={i}
-                  className="inline-block transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-emerald-400"
-                  style={{ transitionDelay: `${i * 30}ms` }}
-                >
-                  {char}
-                </span>
-              ))}
-            </span>
-          </span>
-        </Link>
+          </Link>
 
-        {/* Center */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => setShowSpotify(!showSpotify)}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#1a1a1a] rounded-full border border-white/5 hover:scale-105 transition cursor-pointer"
-          >
-            <div
-              className={`w-2 h-2 rounded-full animate-pulse shrink-0 ${getStatusColor()}`}
-            />
-            <span className="text-sm">NOW PLAYING</span>
-          </button>
-        </div>
-
-        {/* Right */}
-        <div className="flex items-center justify-end">
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-8 lg:gap-10 text-sm">
-            {navLinks.map((href) => (
-              <Link
-                key={href}
-                to={href}
-                className={`relative pb-2 transition-colors
-                  ${
-                    path === href
-                      ? "text-white"
-                      : "text-gray-400 hover:text-gray-200"
-                  }`}
-              >
-                {href.replace("/", "").toUpperCase()}
-                <span
-                  className={`absolute left-0 bottom-0 h-0.5 rounded-full transition-all
-                    ${
-                      path === href
-                        ? "w-full bg-emerald-400"
-                        : "w-0 bg-emerald-400 hover:w-full"
-                    }`}
-                />
-              </Link>
-            ))}
+          {/* Right: spotify + nav + icons */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            {/* Spotify button */}
             <button
-              onClick={onOpenShortcuts}
-              title="Keyboard shortcuts (?)"
-              className="pb-2 text-gray-500 hover:text-gray-200 transition cursor-pointer"
+              onClick={() => setShowSpotify(!showSpotify)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/8 hover:border-white/15 hover:bg-white/8 transition cursor-pointer"
             >
-              <Keyboard className="w-4 h-4" />
+              <div className={`w-1.5 h-1.5 rounded-full animate-pulse shrink-0 ${getStatusColor()}`} />
+              <span className="text-xs font-medium tracking-wide text-gray-400">NOW PLAYING</span>
+            </button>
+
+            {/* Desktop nav links */}
+            <div className="hidden md:flex items-center gap-7 text-sm">
+              {navLinks.map((href) => (
+                <Link
+                  key={href}
+                  to={href}
+                  className={`relative pb-2 transition-colors ${
+                    path === href ? "text-white" : "text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  {href.replace("/", "").toUpperCase()}
+                  <span className={`absolute left-0 bottom-0 h-0.5 rounded-full transition-all ${
+                    path === href ? "w-full bg-emerald-400" : "w-0 bg-emerald-400 hover:w-full"
+                  }`} />
+                </Link>
+              ))}
+              <button
+                onClick={onOpenShortcuts}
+                title="Keyboard shortcuts (?)"
+                className="pb-2 text-gray-500 hover:text-gray-200 transition cursor-pointer"
+              >
+                <Keyboard className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden p-1.5 text-gray-400 hover:text-white transition cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden p-2 text-gray-400 hover:text-white transition cursor-pointer"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? (
-              <X className="w-5 h-5 transition-transform duration-300 rotate-0" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
         </div>
       </nav>
 
       {/* Mobile menu dropdown */}
       {menuOpen && (
-        <div className="fixed top-[57px] left-0 w-full bg-[#0a0a0a] border-b border-white/5 z-40 px-6 py-2 md:hidden flex flex-col">
+        <div className="fixed top-[76px] left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-5xl bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl z-40 px-4 py-2 md:hidden flex flex-col shadow-xl shadow-black/30">
           {navLinks.map((href) => (
             <Link
               key={href}
@@ -256,107 +232,129 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
           showSpotify ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         style={{
-          top: "72px",
+          top: "80px",
           left: "50%",
           transform: `translateX(-50%) translateY(${showSpotify ? "0px" : "-8px"})`,
         }}
       >
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 shadow-2xl">
-            <div className="flex justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full animate-pulse ${getStatusColor()}`}
-                />
-                <h3 className="font-semibold">{getStatusText()}</h3>
-              </div>
-              <button
-                className="text-gray-400 hover:text-white transition cursor-pointer group"
-                onClick={() => setShowSpotify(false)}
-              >
-                <X className="w-5.5 h-5.5 transition-transform duration-500 ease-in-out group-hover:rotate-180" />
-              </button>
-            </div>
+          <style>{`
+            @keyframes eq1 { 0%,100%{height:6px} 50%{height:14px} }
+            @keyframes eq2 { 0%,100%{height:12px} 33%{height:4px} }
+            @keyframes eq3 { 0%,100%{height:8px} 66%{height:16px} }
+            .eq1 { animation: eq1 0.8s ease-in-out infinite; }
+            .eq2 { animation: eq2 0.9s ease-in-out infinite 0.15s; }
+            .eq3 { animation: eq3 0.75s ease-in-out infinite 0.3s; }
+          `}</style>
 
-            {/* TRACK */}
-            {spotifyData.status === "playing" &&
-              spotifyData.type === "track" &&
-              spotifyData.track && (
-                <>
-                  <div className="flex gap-4 mb-4">
-                    <img
-                      src={spotifyData.track.albumArt}
-                      className="w-20 h-20 rounded-lg shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <h4 className="font-semibold truncate">
-                        {spotifyData.track.title}
-                      </h4>
-                      <p className="text-sm text-gray-400 truncate">
-                        {spotifyData.track.artist}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">
-                        {spotifyData.track.album}
-                      </p>
+          {(() => {
+            const isPlaying = spotifyData.status === "playing";
+            const isIdle = spotifyData.status === "idle";
+            const t = spotifyData.track;
+            const ep = spotifyData.episode;
+            const lp = spotifyData.lastPlayed;
+            const art = isPlaying ? (t?.albumArt ?? ep?.image ?? "") : (lp?.albumArt ?? "");
+            const title = isPlaying ? (t?.title ?? ep?.title ?? "") : (lp?.title ?? "");
+            const sub = isPlaying ? (t?.artist ?? ep?.show ?? "") : (lp?.artist ?? "");
+            const album = t?.album ?? "";
+            const url = t?.url ?? ep?.url ?? "";
+            const progress = t?.progress ?? ep?.progress ?? 0;
+            const duration = t?.duration ?? ep?.duration ?? 1;
+
+            return (
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+                {/* Ambient blurred background */}
+                {art && (
+                  <div
+                    className="absolute inset-0 scale-110 opacity-25"
+                    style={{
+                      backgroundImage: `url(${art})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      filter: "blur(28px)",
+                    }}
+                  />
+                )}
+                <div className="absolute inset-0 bg-[#0c0c0c]/80 backdrop-blur-sm" />
+
+                <div className="relative p-5">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      {isPlaying ? (
+                        <div className="flex items-end gap-[3px] h-4">
+                          <div className="eq1 w-[3px] rounded-full bg-green-400" />
+                          <div className="eq2 w-[3px] rounded-full bg-green-400" />
+                          <div className="eq3 w-[3px] rounded-full bg-green-400" />
+                        </div>
+                      ) : (
+                        <div className={`w-2 h-2 rounded-full ${getStatusColor()}`} />
+                      )}
+                      <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+                        {getStatusText()}
+                      </span>
                     </div>
+                    <button
+                      className="text-gray-500 hover:text-white transition cursor-pointer group"
+                      onClick={() => setShowSpotify(false)}
+                    >
+                      <X className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
+                    </button>
                   </div>
-                  {renderProgress(
-                    spotifyData.track.progress,
-                    spotifyData.track.duration,
-                  )}
-                </>
-              )}
 
-            {/* PODCAST */}
-            {spotifyData.status === "playing" &&
-              spotifyData.type === "episode" &&
-              spotifyData.episode && (
-                <>
-                  <div className="flex gap-4 mb-4">
-                    <img
-                      src={spotifyData.episode.image}
-                      className="w-20 h-20 rounded-lg shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <h4 className="font-semibold truncate">
-                        {spotifyData.episode.title}
-                      </h4>
-                      <p className="text-sm text-gray-400 truncate">
-                        {spotifyData.episode.show}
-                      </p>
+                  {/* Art + Info */}
+                  {(art || title) && (
+                    <div className="flex gap-4 items-center mb-4">
+                      {art && (
+                        <img
+                          src={art}
+                          className={`w-16 h-16 rounded-xl shrink-0 shadow-lg ${isIdle ? "opacity-50 grayscale" : ""}`}
+                        />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-white truncate leading-tight">{title}</p>
+                        <p className="text-sm text-gray-400 truncate mt-0.5">{sub}</p>
+                        {album && <p className="text-xs text-gray-600 truncate mt-0.5">{album}</p>}
+                      </div>
                     </div>
-                  </div>
-                  {renderProgress(
-                    spotifyData.episode.progress,
-                    spotifyData.episode.duration,
                   )}
-                </>
-              )}
 
-            {/* IDLE */}
-            {spotifyData.status === "idle" && spotifyData.lastPlayed && (
-              <div className="flex gap-4">
-                <img
-                  src={spotifyData.lastPlayed.albumArt}
-                  className="w-20 h-20 rounded-lg opacity-60 shrink-0"
-                />
-                <div className="min-w-0">
-                  <h4 className="font-semibold truncate">
-                    {spotifyData.lastPlayed.title}
-                  </h4>
-                  <p className="text-sm text-gray-400 truncate">
-                    {spotifyData.lastPlayed.artist}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">Not playing</p>
+                  {/* Progress bar */}
+                  {isPlaying && duration > 1 && (
+                    <div className="mb-4">
+                      <div className="relative h-1 bg-white/8 rounded-full overflow-hidden">
+                        <div
+                          className="absolute inset-y-0 left-0 bg-linear-to-r from-green-500 to-green-400 rounded-full transition-all duration-1000"
+                          style={{ width: `${(progress / duration) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-gray-600 mt-1.5">
+                        <span>{Math.floor(progress / 60000)}:{String(Math.floor((progress % 60000) / 1000)).padStart(2, "0")}</span>
+                        <span>{Math.floor(duration / 60000)}:{String(Math.floor((duration % 60000) / 1000)).padStart(2, "0")}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-gray-600 font-medium tracking-wide uppercase">Spotify</span>
+                    {url && isPlaying && (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] text-gray-500 hover:text-green-400 transition flex items-center gap-1 group"
+                      >
+                        Open
+                        <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                      </a>
+                    )}
+                    {isIdle && <span className="text-[11px] text-gray-600">Not playing</span>}
+                    {spotifyData.status === "error" && <span className="text-[11px] text-red-500/70">Unavailable</span>}
+                  </div>
                 </div>
               </div>
-            )}
-
-            {spotifyData.status === "error" && (
-              <p className="text-center text-gray-400">
-                Unable to fetch Spotify data
-              </p>
-            )}
-          </div>
+            );
+          })()}
         </div>
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-200 ${

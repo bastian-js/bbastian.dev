@@ -290,12 +290,45 @@ app.post("/contact", limiter, async (req, res) => {
       to: process.env.MAIL_TO,
       replyTo: data.email,
       subject: `Contact form – ${data.name}`,
-      text: `
-Name: ${data.name}
-Email: ${data.email}
-
-${data.message}
-      `.trim(),
+      text: [
+        `New message from bbastian.dev`,
+        `─────────────────────────────`,
+        `Name    ${data.name}`,
+        `Email   ${data.email}`,
+        `─────────────────────────────`,
+        ``,
+        data.message,
+        ``,
+        `─────────────────────────────`,
+        `Sent via bbastian.dev/contact`,
+      ].join("\n"),
+      html: `
+        <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;background:#0a0a0a;border-radius:12px;overflow:hidden;border:1px solid #222">
+          <div style="padding:24px 28px;border-bottom:1px solid #1a1a1a">
+            <span style="font-family:monospace;font-size:15px;color:#34d399;font-weight:700">&lt;B/&gt;</span>
+            <span style="font-size:13px;color:#555;margin-left:10px">bbastian.dev · contact form</span>
+          </div>
+          <div style="padding:28px">
+            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+              <tr>
+                <td style="padding:8px 0;color:#555;font-size:12px;text-transform:uppercase;letter-spacing:.08em;width:64px">Name</td>
+                <td style="padding:8px 0;color:#fff;font-size:14px;font-weight:600">${data.name}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#555;font-size:12px;text-transform:uppercase;letter-spacing:.08em">Email</td>
+                <td style="padding:8px 0"><a href="mailto:${data.email}" style="color:#34d399;font-size:14px;text-decoration:none">${data.email}</a></td>
+              </tr>
+            </table>
+            <div style="background:#111;border:1px solid #1f1f1f;border-radius:8px;padding:18px 20px">
+              <p style="margin:0;color:#999;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Message</p>
+              <p style="margin:0;color:#e5e5e5;font-size:14px;line-height:1.7;white-space:pre-wrap">${data.message}</p>
+            </div>
+          </div>
+          <div style="padding:16px 28px;border-top:1px solid #1a1a1a;text-align:right">
+            <span style="font-size:11px;color:#333">bbastian.dev/contact</span>
+          </div>
+        </div>
+      `,
     });
 
     res.json({ success: true });

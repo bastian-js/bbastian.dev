@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 – Not Found</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: #0a0a0a;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .container {
+        text-align: center;
+        max-width: 480px;
+        width: 100%;
+      }
+
+      /* --- 404 glitch --- */
+      @keyframes glitch-1 {
+        0%,100% { clip-path: polygon(0 15%, 100% 15%, 100% 30%, 0 30%); transform: translate(-4px,0); }
+        25%      { clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%); transform: translate(4px,0); }
+        50%      { clip-path: polygon(0 40%, 100% 40%, 100% 50%, 0 50%); transform: translate(-2px,0); }
+        75%      { clip-path: polygon(0 80%, 100% 80%, 100% 90%, 0 90%); transform: translate(2px,0); }
+      }
+      @keyframes glitch-2 {
+        0%,100% { clip-path: polygon(0 50%, 100% 50%, 100% 65%, 0 65%); transform: translate(3px,0); }
+        33%      { clip-path: polygon(0 10%, 100% 10%, 100% 25%, 0 25%); transform: translate(-3px,0); }
+        66%      { clip-path: polygon(0 70%, 100% 70%, 100% 85%, 0 85%); transform: translate(1px,0); }
+      }
+
+      .glitch {
+        position: relative;
+        font-size: clamp(6rem, 22vw, 10rem);
+        font-weight: 900;
+        line-height: 1;
+        color: rgba(255,255,255,0.9);
+        letter-spacing: -4px;
+        user-select: none;
+      }
+      .glitch::before,
+      .glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+      .glitch:hover::before {
+        color: #22d3ee;
+        opacity: 0.7;
+        animation: glitch-1 0.4s steps(1) infinite;
+      }
+      .glitch:hover::after {
+        color: #f43f5e;
+        opacity: 0.7;
+        animation: glitch-2 0.4s steps(1) infinite;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #fff;
+        margin-top: 0.5rem;
+      }
+
+      .desc {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      /* --- sitemap --- */
+      .sitemap {
+        background: #141414;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.75rem;
+        text-align: left;
+      }
+
+      .sitemap-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #4b5563;
+        margin-bottom: 0.875rem;
+      }
+
+      .sitemap-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .sitemap-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.6rem 0.75rem;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: background 0.15s;
+        color: #d1d5db;
+        font-size: 0.875rem;
+      }
+      .sitemap-link:hover {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+      }
+
+      .sitemap-link-left {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #34d399;
+        flex-shrink: 0;
+      }
+
+      .sitemap-link-name {
+        font-weight: 600;
+      }
+
+      .sitemap-link-url {
+        font-size: 0.75rem;
+        color: #4b5563;
+        font-family: ui-monospace, monospace;
+      }
+      .sitemap-link:hover .sitemap-link-url {
+        color: #6b7280;
+      }
+
+      .arrow {
+        color: #374151;
+        font-size: 0.75rem;
+        transition: color 0.15s, transform 0.15s;
+      }
+      .sitemap-link:hover .arrow {
+        color: #34d399;
+        transform: translateX(3px);
+      }
+
+      /* --- buttons --- */
+      .buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #d1d5db;
+        background: #1a1a1a;
+      }
+      .btn:hover {
+        background: #222;
+        color: #fff;
+        border-color: rgba(255,255,255,0.18);
+      }
+      .btn-primary {
+        background: #fff;
+        color: #000;
+        border-color: transparent;
+      }
+      .btn-primary:hover {
+        background: #e5e5e5;
+        color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="glitch" data-text="404">404</h1>
+      <p class="subtitle">Page not found</p>
+      <p class="desc">This page doesn't exist or was moved.</p>
+
+      <div class="sitemap">
+        <p class="sitemap-label">Sitemap</p>
+        <div class="sitemap-links">
+          <a class="sitemap-link" href="https://bbastian.dev" target="_blank" rel="noopener">
+            <span class="sitemap-link-left">
+              <span class="dot"></span>
+              <span class="sitemap-link-name">bbastian.dev</span>
+            </span>
+            <span style="display:flex;align-items:center;gap:0.5rem">
+              <span class="sitemap-link-url">bbastian.dev</span>
+              <span class="arrow">→</span>
+            </span>
+          </a>
+          <a class="sitemap-link" href="https://properform.app" target="_blank" rel="noopener">
+            <span class="sitemap-link-left">
+              <span class="dot" style="background:#818cf8"></span>
+              <span class="sitemap-link-name">ProPerform</span>
+            </span>
+            <span style="display:flex;align-items:center;gap:0.5rem">
+              <span class="sitemap-link-url">properform.app</span>
+              <span class="arrow">→</span>
+            </span>
+          </a>
+          <a class="sitemap-link" href="https://piggytrack.bbastian.dev" target="_blank" rel="noopener">
+            <span class="sitemap-link-left">
+              <span class="dot" style="background:#f472b6"></span>
+              <span class="sitemap-link-name">PiggyTrack</span>
+            </span>
+            <span style="display:flex;align-items:center;gap:0.5rem">
+              <span class="sitemap-link-url">piggytrack.bbastian.dev</span>
+              <span class="arrow">→</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <a class="btn btn-primary" href="https://bbastian.dev">← Home</a>
+        <a class="btn" href="https://bbastian.dev/projects">Projects</a>
+        <a class="btn" href="https://bbastian.dev/contact">Contact</a>
+      </div>
+    </div>
+  </body>
+</html>

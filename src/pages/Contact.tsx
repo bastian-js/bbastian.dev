@@ -1,94 +1,73 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Mail, User, MessageSquare, Check } from "lucide-react";
-
-const useReveal = () => {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => entry.isIntersecting && setVisible(true),
-      { threshold: 0.15 },
-    );
-
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, visible };
-};
+import {
+  Send,
+  Mail,
+  User,
+  MessageSquare,
+  Check,
+  AlertCircle,
+} from "lucide-react";
+import confetti from "canvas-confetti";
 
 function Contact() {
-  const header = useReveal();
-  const form = useReveal();
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
-
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [, setShowCheckmark] = useState(false);
+  const [focused, setFocused] = useState<string | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const contactTexts = [
     "Let's start a project",
-    "Contact me",
     "Let's connect",
     "Work with me",
-    "Start a collaboration",
     "Get in touch",
-    "Reach out",
     "Let's talk",
   ];
-
-  // Set random text only once on component mount
   const [randomText] = useState(
     () => contactTexts[Math.floor(Math.random() * contactTexts.length)],
   );
 
-  // Auto-reset success message after 4 seconds
   useEffect(() => {
     if (status === "success") {
-      const timer = setTimeout(() => {
-        setStatus("idle");
-        setShowCheckmark(false);
-      }, 4000);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => setStatus("idle"), 5000);
+      return () => clearTimeout(t);
     }
   }, [status]);
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (status === "loading") return;
     setStatus("loading");
     setErrorMessage("");
-    setShowCheckmark(false);
 
     try {
-      if (formData.message.length < 10) {
-        throw new Error("Message must be at least 10 characters long");
-      }
+      if (formData.message.length < 10)
+        throw new Error("Message must be at least 10 characters.");
 
       const res = await fetch("https://api.bbastian.dev/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
 
       setStatus("success");
-      setShowCheckmark(true);
       setFormData({ name: "", email: "", message: "" });
+
+      // Fire confetti from the button
+      if (btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+        const x = (rect.left + rect.width / 2) / window.innerWidth;
+        const y = (rect.top + rect.height / 2) / window.innerHeight;
+        confetti({ particleCount: 80, spread: 70, origin: { x, y }, colors: ["#34d399", "#ffffff", "#a7f3d0", "#6ee7b7"] });
+      }
     } catch (err: any) {
       setStatus("error");
       setErrorMessage(err.message);
@@ -98,254 +77,167 @@ function Contact() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+    if (status === "error") setStatus("idle");
   };
 
+  const fields = [
+    {
+      id: "name",
+      label: "Name",
+      placeholder: "Your name",
+      icon: User,
+      type: "text",
+    },
+    {
+      id: "email",
+      label: "Email",
+      placeholder: "your@email.com",
+      icon: Mail,
+      type: "email",
+    },
+  ];
+
   return (
-    <>
-      <style>{`
-        @keyframes glowPulse {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
-          }
-          50% {
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.5), 0 0 60px rgba(59, 130, 246, 0.4);
-          }
-        }
-
-        @keyframes checkmarkBounce {
-          0% {
-            transform: scale(0) rotate(-45deg);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.15) rotate(10deg);
-          }
-          100% {
-            transform: scale(1) rotate(0deg);
-            opacity: 1;
-          }
-        }
-
-        @keyframes successSlideIn {
-          0% {
-            transform: translateY(-20px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes successSlideOut {
-          0% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(20px);
-            opacity: 0;
-          }
-        }
-
-        @keyframes pulseGreen {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-        }
-
-        .profile-pic {
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .profile-container:hover .profile-pic {
-          transform: scale(1.08);
-        }
-
-        .profile-container:hover {
-          animation: glowPulse 2s ease-in-out infinite;
-        }
-
-        .checkmark-icon {
-          animation: checkmarkBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-        }
-
-        .success-message {
-          animation: successSlideIn 0.5s ease-out forwards;
-        }
-
-        .success-message.exit {
-          animation: successSlideOut 0.5s ease-in forwards;
-        }
-
-        .pulsing {
-          animation: pulseGreen 1.5s ease-in-out infinite;
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-[#0a0a0a] text-white py-20 px-6">
-        {/* Header */}
-        <div
-          ref={header.ref}
-          className={`max-w-2xl mx-auto text-center mb-14 transition-all duration-1000 ${
-            header.visible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-10"
-          }`}
-        >
-          <div className="mb-6">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 p-[3px]">
-              <img
-                src="/profile_picture.png"
-                alt="Profile"
-                className="profile-pic w-full h-full rounded-full object-cover border-4 border-[#0a0a0a]"
-              />
-            </div>
-          </div>
-
-          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Contact
-          </h1>
-
-          <p className="text-gray-400 text-base">{randomText}</p>
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center py-24 px-4">
+      {/* Header */}
+      <div className="w-full max-w-lg mb-10 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/8 bg-white/4 text-xs text-gray-400 font-medium tracking-wide mb-5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          AVAILABLE FOR WORK
         </div>
+        <h1 className="text-4xl font-bold tracking-tight text-white mb-3">
+          {randomText}
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Send me a message and I'll get back to you as soon as possible.
+        </p>
+      </div>
 
-        {/* Form */}
-        <div
-          ref={form.ref}
-          className={`max-w-2xl mx-auto space-y-4 transition-all duration-1000 ${
-            form.visible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-10"
-          }`}
-        >
-          {/* Input Card */}
-          {[
-            {
-              id: "name",
-              placeholder: "Your Name",
-              icon: User,
-              type: "text",
-            },
-            {
-              id: "email",
-              placeholder: "Your Email",
-              icon: Mail,
-              type: "email",
-            },
-          ].map(({ id, placeholder, icon: Icon, type }) => (
-            <div
-              key={id}
-              className="
-                relative w-full
-                bg-[#1a1a1a] border border-white/5
-                rounded-2xl px-6 py-6
-                transition-all duration-300
-                hover:border-white/10 hover:bg-[#222222]
-              "
-            >
-              <Icon className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              <input
-                id={id}
-                type={type}
-                value={(formData as any)[id]}
-                onChange={handleChange}
-                placeholder={placeholder}
-                className="
-                  w-full bg-transparent
-                  pl-12 pr-4
-                  text-lg text-white
-                  placeholder-gray-500
-                  outline-none
-                "
-              />
+      {/* Form card */}
+      <div className="w-full max-w-lg bg-[#111111] border border-white/6 rounded-3xl p-6 shadow-2xl shadow-black/40">
+        <div className="space-y-3">
+          {/* Name + Email */}
+          {fields.map(({ id, label, placeholder, icon: Icon, type }) => (
+            <div key={id} className="flex flex-col gap-1.5">
+              <label
+                htmlFor={id}
+                className="text-xs font-medium text-gray-500 tracking-wide uppercase pl-1 text-left"
+              >
+                {label}
+              </label>
+              <div
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all duration-150 ${
+                  focused === id
+                    ? "border-emerald-500/50 bg-white/4"
+                    : "border-white/6 bg-white/2 hover:border-white/10"
+                }`}
+              >
+                <Icon className="w-4 h-4 text-gray-600 shrink-0" />
+                <input
+                  id={id}
+                  type={type}
+                  value={(formData as any)[id]}
+                  onChange={handleChange}
+                  onFocus={() => setFocused(id)}
+                  onBlur={() => setFocused(null)}
+                  placeholder={placeholder}
+                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 outline-none"
+                />
+              </div>
             </div>
           ))}
 
           {/* Message */}
-          <div className="relative bg-[#1a1a1a] border border-white/5 rounded-2xl px-6 py-6 transition-all duration-300 hover:border-white/10 hover:bg-[#222222]">
-            <MessageSquare className="absolute left-6 top-6 text-gray-500 w-5 h-5" />
-            <textarea
-              id="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Your Message"
-              className="
-                w-full bg-transparent
-                pl-12 pr-4
-                text-lg text-white
-                placeholder-gray-500
-                outline-none
-                min-h-[140px]
-              "
-            />
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="message"
+              className="text-xs font-medium text-gray-500 tracking-wide uppercase pl-1 text-left"
+            >
+              Message
+            </label>
+            <div
+              className={`flex gap-3 px-4 py-3.5 rounded-xl border transition-all duration-150 ${
+                focused === "message"
+                  ? "border-emerald-500/50 bg-white/4"
+                  : "border-white/6 bg-white/2 hover:border-white/10"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
+              <textarea
+                id="message"
+                value={formData.message}
+                onChange={handleChange}
+                onFocus={() => setFocused("message")}
+                onBlur={() => setFocused(null)}
+                placeholder="What's on your mind?"
+                rows={5}
+                className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 outline-none resize-none leading-relaxed"
+              />
+            </div>
           </div>
 
-          {/* Status Messages */}
-          {status === "success" && (
-            <div className="success-message rounded-2xl border border-green-500/30 bg-green-500/10 px-6 py-4 flex items-center gap-3">
-              <div className="flex-shrink-0">
-                <Check
-                  className="checkmark-icon w-6 h-6 text-green-400"
-                  strokeWidth={3}
-                />
-              </div>
-              <span className="text-green-400 font-semibold">
-                Message sent successfully! 🚀
-              </span>
-            </div>
-          )}
+          {/* Spacer */}
+          <div className="pt-2" />
 
+          {/* Error */}
           {status === "error" && (
-            <div className="success-message rounded-2xl border border-red-500/30 bg-red-500/10 px-6 py-4 text-red-400">
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/8 text-red-400 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               {errorMessage}
             </div>
           )}
 
-          {/* Button */}
+          {/* Success */}
+          {status === "success" && (
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 text-emerald-400 text-sm">
+              <Check className="w-4 h-4 shrink-0" />
+              Message sent — I'll get back to you soon!
+            </div>
+          )}
+
+          {/* Submit */}
           <button
+            ref={btnRef}
             onClick={handleSubmit}
-            disabled={status === "loading"}
-            className={`
-              w-full rounded-2xl px-6 py-6
-              bg-gradient-to-r from-green-500 to-green-600
-              text-lg font-semibold
-              transition-all duration-300
-              hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/50
-              disabled:opacity-60 disabled:cursor-not-allowed
-              cursor-pointer
-              ${status === "success" ? "pulsing" : ""}
-            `}
+            disabled={status === "loading" || status === "success"}
+            className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              status === "success"
+                ? "bg-emerald-500/15 border border-emerald-500/25 text-emerald-400"
+                : "bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-50 disabled:cursor-not-allowed"
+            }`}
           >
-            <span className="flex items-center justify-center gap-3">
-              {status === "loading" ? (
-                <>
-                  <span>Sending…</span>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                </>
-              ) : status === "success" ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  <span>Message Sent!</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Message</span>
-                  <Send className="w-5 h-5" />
-                </>
-              )}
-            </span>
+            {status === "loading" ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                Sending…
+              </>
+            ) : status === "success" ? (
+              <>
+                <Check className="w-4 h-4" />
+                Message Sent
+              </>
+            ) : (
+              <>
+                Send Message
+                <Send className="w-4 h-4" />
+              </>
+            )}
           </button>
         </div>
       </div>
-    </>
+
+      {/* Footer hint */}
+      <p className="mt-6 text-xs text-gray-600">
+        Prefer email?{" "}
+        <a
+          href="mailto:bastian@bbastian.dev"
+          className="text-gray-500 hover:text-gray-300 transition underline underline-offset-2"
+        >
+          hello@bbastian.dev
+        </a>
+      </p>
+    </div>
   );
 }
 
