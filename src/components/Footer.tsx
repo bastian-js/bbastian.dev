@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, Twitter, Instagram, MessageCircle } from "lucide-react";
+import { GitBranch, MessageCircle, Camera, MessageSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Footer: React.FC = () => {
@@ -8,9 +8,9 @@ const Footer: React.FC = () => {
 
   const socialLinks = [
     { name: "Discord", icon: MessageCircle, url: "/contact", color: "#5865F2" },
-    { name: "Twitter", icon: Twitter, url: "https://x.com/knuddelghg", color: "#1DA1F2" },
-    { name: "Instagram", icon: Instagram, url: "https://www.instagram.com/bbastiann._/", color: "#E4405F" },
-    { name: "GitHub", icon: Github, url: "https://github.com/bastian-js", color: "#FFFFFF" },
+    { name: "Twitter", icon: MessageSquare, url: "https://x.com/knuddelghg", color: "#1DA1F2" },
+    { name: "Instagram", icon: Camera, url: "https://www.instagram.com/bbastiann._/", color: "#E4405F" },
+    { name: "GitHub", icon: GitBranch, url: "https://github.com/bastian-js", color: "#FFFFFF" },
   ];
 
   const pages = [
@@ -74,6 +74,23 @@ const Footer: React.FC = () => {
                 Noury
                 <span className="rounded-full bg-emerald-400/15 border border-emerald-300/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-emerald-400 uppercase leading-none">
                   Soon
+                </span>
+              </Link>
+              {/* PiggyTrack */}
+              <Link
+                to="/piggytrack"
+                className="flex items-center gap-2.5 text-sm text-gray-500 hover:text-white transition-colors duration-200 group w-fit"
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                    currentPage === "/piggytrack"
+                      ? "bg-[#FF2E8C]"
+                      : "bg-white/15 group-hover:bg-white/40"
+                  }`}
+                />
+                PiggyTrack
+                <span className="rounded-full bg-pink-500/15 border border-pink-400/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-pink-400 uppercase leading-none">
+                  Live
                 </span>
               </Link>
             </nav>
