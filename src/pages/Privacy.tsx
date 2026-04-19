@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const CONTACT_EMAIL = "hello@bbastian.dev";
-const LAST_UPDATED = "April 2026";
+const LAST_UPDATED = "20. April 2026";
 
 interface Section {
   icon: React.ElementType;
@@ -95,7 +95,7 @@ export default function Privacy() {
       icon: Shield,
       title: "Your rights (DSGVO / GDPR)",
       content: (
-        <ul className="space-y-2 text-sm text-gray-400 leading-relaxed">
+        <ul className="space-y-2 text-sm text-gray-400 leading-relaxed text-left">
           <li className="flex gap-2">
             <span className="text-emerald-500 mt-0.5 shrink-0">•</span>
             <span>
@@ -152,7 +152,9 @@ export default function Privacy() {
               <Shield className="w-3.5 h-3.5" />
             </div>
             <div>
-              <p className="text-xs text-gray-600 leading-none mb-0.5">Name</p>
+              <p className="text-left text-xs text-gray-600 leading-none mb-0.5">
+                Name
+              </p>
               <p className="text-sm font-medium text-white">Bastian</p>
             </div>
           </div>
