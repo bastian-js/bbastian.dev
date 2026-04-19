@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
                   className="rounded-full border border-blue-700/25 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-blue-400 uppercase leading-none"
                   style={{ background: "#1F3A8A30" }}
                 >
-                  Live
+                  Soon
                 </span>
               </Link>
             </nav>
