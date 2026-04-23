@@ -9,6 +9,8 @@ import Projects from "./pages/Projects";
 import ProPerform from "./pages/ProPerform";
 import Socials from "./pages/Socials";
 import SpotifyCallback from "./pages/SpotifyCallback";
+import SpotifyArtistHallOfFame from "./pages/SpotifyArtistHallOfFame";
+import SpotifyHallOfFame from "./pages/SpotifyHallOfFame";
 import SpotifyStats from "./pages/SpotifyStats";
 
 const routes = [
@@ -53,12 +55,20 @@ const routes = [
     element: <ProPerform />,
   },
   {
-    path: "/spotify-stats",
+    path: "/spotify/stats",
     element: <SpotifyStats />,
   },
   {
     path: "/spotify-callback",
     element: <SpotifyCallback />,
+  },
+  {
+    path: "/spotify/hall-of-fame",
+    element: <SpotifyHallOfFame />,
+  },
+  {
+    path: "/spotify/artist-hall-of-fame",
+    element: <SpotifyArtistHallOfFame />,
   },
 ];
 

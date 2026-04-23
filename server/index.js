@@ -116,10 +116,11 @@ app.get("/github-stats", async (req, res) => {
       (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24 * 365),
     );
 
-    const lastActive = repos
-      .filter((r) => !r.fork)
-      .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))[0]
-      ?.pushed_at ?? null;
+    const lastActive =
+      repos
+        .filter((r) => !r.fork)
+        .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))[0]
+        ?.pushed_at ?? null;
 
     res.json({
       repos: repos.length,
@@ -309,19 +310,22 @@ app.get("/spotify/top-tracks", async (req, res) => {
   const time_range = allowed.includes(req.query.time_range)
     ? req.query.time_range
     : "short_term";
+  const limit = req.query.limit === "50" ? 50 : 10;
 
   try {
     const { access_token } = await getAccessToken();
 
     const response = await fetch(
-      `${TOP_TRACKS_ENDPOINT}?limit=10&time_range=${time_range}`,
+      `${TOP_TRACKS_ENDPOINT}?limit=${limit}&time_range=${time_range}`,
       { headers: { Authorization: `Bearer ${access_token}` } },
     );
 
     if (response.status > 400) {
       const errBody = await response.text();
       console.error("Spotify Top Tracks status:", response.status, errBody);
-      return res.status(502).json({ error: "Spotify API error", status: response.status });
+      return res
+        .status(502)
+        .json({ error: "Spotify API error", status: response.status });
     }
 
     const data = await response.json();
@@ -333,6 +337,7 @@ app.get("/spotify/top-tracks", async (req, res) => {
       album: item.album.name,
       albumArt: item.album.images[0]?.url || "",
       url: item.external_urls.spotify,
+      previewUrl: item.preview_url || null,
       duration: item.duration_ms,
       popularity: item.popularity,
     }));
@@ -341,6 +346,143 @@ app.get("/spotify/top-tracks", async (req, res) => {
   } catch (error) {
     console.error("Spotify Top Tracks Error:", error);
     return res.status(500).json({ error: "Failed to fetch top tracks" });
+  }
+});
+
+const ARTIST_HALL_OF_FAME_IDS = [
+  "1ul8iLt2WnFe2UIyovjg7q",
+  "5pVRwX5ZQR7hfJ18w8ZYkl",
+  "4gJT0OnBISFA5CPMNYBGIE",
+  "1fImPZoBVjmYrBFzCHh0N3",
+  "1bpI6QDUqmfKmV0Tlhj0Jm",
+  "2IVvZIe3P9BMuCI6h48Bjg",
+  "3drqpTL4sQOckmAfF9i1wg",
+  "6ioU7VVUMpOhlsD1b9A4xP",
+  "1dVKBw8iMPpS1almxwIVI3",
+  "3CJKkU0XuElRT1z8rEtIYg",
+  "2F0M1eZ2BZFNFPCq3eKCtA",
+  "7slJ8mgbVwvyPEzQMJ5qYO",
+  "0lE1by0S3JE5W2BrEopkUh",
+  "6bM6rpwjhvxuKSQ2OJ2eQC",
+];
+
+/**
+ * GET /spotify/artist-hall-of-fame
+ * Returns a curated list of all-time favourite artists.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+app.get("/spotify/artist-hall-of-fame", async (req, res) => {
+  try {
+    const { access_token } = await getAccessToken();
+
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists?ids=${ARTIST_HALL_OF_FAME_IDS.join(",")}`,
+      { headers: { Authorization: `Bearer ${access_token}` } },
+    );
+
+    if (response.status > 400) {
+      const errBody = await response.text();
+      console.error("Spotify Artist HoF status:", response.status, errBody);
+      return res.status(502).json({ error: "Spotify API error", status: response.status });
+    }
+
+    const data = await response.json();
+
+    const artists = data.artists.map((item, index) => ({
+      index,
+      name: item.name,
+      image: item.images[0]?.url || "",
+      genres: item.genres.slice(0, 3),
+      followers: item.followers.total,
+      popularity: item.popularity,
+      url: item.external_urls.spotify,
+    }));
+
+    return res.json({ artists });
+  } catch (error) {
+    console.error("Spotify Artist HoF Error:", error);
+    return res.status(500).json({ error: "Failed to fetch artist hall of fame" });
+  }
+});
+
+const HALL_OF_FAME_IDS = [
+  "3ouqRo2zDJjewIao5CFFGN",
+  "2R5kWKlRKal6lZOkdQxUSc",
+  "27c0YWljuBXtT4tN2GZBQ7",
+  "7na1uJMyHz0a73FMUtrQSi",
+  "6SPxw3c1N7RNdr5Z3z2tEG",
+  "01F24uRyIWAkvdUPFpzanr",
+  "5yVhcpTvQYr4LooQ0dt4l4",
+  "0uZl6rkTxmKLK4aFVMOHfh",
+  "0qwt5HYzZkGM6YhjE9rhW6",
+  "32wSOXobJuH34ebt8OaXAV",
+  "3DdpnjIgHK4t5NAsdJvKge",
+  "7spG1hR99gCB43DaEcq9VC",
+  "371E8Xx0OCWGAbOddxvo4i",
+  "1zibZkbO2SMtSecGzOqN9B",
+  "1JEfGq3ZWwHLHpc4wBY5u6",
+  "2S3LlMagL19C8pK1IaYdxO",
+  "2VAdtyPDgPCPbU4DN69IDh",
+  "3xf2LGiuagiArtFNXyNatL",
+  "7eDCvhuP21p1YXAKkChdrU",
+  "5q7xK2SeMg4gFl88pSmSp7",
+  "6ztt4FMa6HCfNdoH96Ppyx",
+  "65PrxT7e9ipgwLwh1Br5sI",
+  "1kTb0z5lNHCmDVhG5bBHfd",
+  "6fRMUid0WLu0Sombj0hUos",
+  "1VQrgjJAcMg7tUwsw0N88n",
+  "7bXFrbPYbZkD2VZ0Xt5Gbd",
+  "46oCcyR5QpWw5Ho1qi0sQK",
+  "0rTaDlcde6sL7GMOdsMQGA",
+  "63VSlAMiTWTbT89AXEdjah",
+  "0kWHKnSLYLbnZKmTwCckxH",
+];
+
+/**
+ * GET /spotify/hall-of-fame
+ * Returns a curated list of all-time favourite tracks.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+app.get("/spotify/hall-of-fame", async (req, res) => {
+  try {
+    const { access_token } = await getAccessToken();
+
+    const response = await fetch(
+      `https://api.spotify.com/v1/tracks?ids=${HALL_OF_FAME_IDS.join(",")}`,
+      { headers: { Authorization: `Bearer ${access_token}` } },
+    );
+
+    if (response.status > 400) {
+      const errBody = await response.text();
+      console.error("Spotify Hall of Fame status:", response.status, errBody);
+      return res
+        .status(502)
+        .json({ error: "Spotify API error", status: response.status });
+    }
+
+    const data = await response.json();
+
+    const tracks = data.tracks.map((item, index) => ({
+      index,
+      title: item.name,
+      artist: item.artists.map((a) => a.name).join(", "),
+      album: item.album.name,
+      albumArt: item.album.images[0]?.url || "",
+      url: item.external_urls.spotify,
+      previewUrl: item.preview_url || null,
+      duration: item.duration_ms,
+      popularity: item.popularity,
+      releaseDate: item.album.release_date,
+    }));
+
+    return res.json({ tracks });
+  } catch (error) {
+    console.error("Spotify Hall of Fame Error:", error);
+    return res.status(500).json({ error: "Failed to fetch hall of fame" });
   }
 });
 

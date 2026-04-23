@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Menu, Keyboard } from "lucide-react";
+import { X, Menu, Keyboard, BarChart2, Trophy, Mic2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface SpotifyTrack {
@@ -335,30 +335,59 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
                   )}
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-gray-600 font-medium tracking-wide uppercase">Spotify</span>
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
                       <Link
-                        to="/spotify-stats"
+                        to="/spotify/stats"
                         onClick={() => setShowSpotify(false)}
-                        className="text-[11px] text-gray-500 hover:text-[#1DB954] transition flex items-center gap-1 group"
+                        className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:border-[#1DB954]/30 hover:bg-[#1DB954]/8 transition-all duration-200 group"
                       >
-                        Top Tracks
-                        <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                        <BarChart2 className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#1DB954] transition-colors shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold text-gray-300 group-hover:text-white transition-colors leading-none mb-0.5">Top Tracks</p>
+                          <p className="text-[10px] text-gray-600 leading-none">Stats</p>
+                        </div>
                       </Link>
-                      {url && isPlaying && (
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] text-gray-500 hover:text-green-400 transition flex items-center gap-1 group"
-                        >
-                          Open
-                          <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-                        </a>
-                      )}
-                      {isIdle && <span className="text-[11px] text-gray-600">Not playing</span>}
-                      {spotifyData.status === "error" && <span className="text-[11px] text-red-500/70">Unavailable</span>}
+                      <Link
+                        to="/spotify/hall-of-fame"
+                        onClick={() => setShowSpotify(false)}
+                        className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:border-[#1DB954]/30 hover:bg-[#1DB954]/8 transition-all duration-200 group"
+                      >
+                        <Trophy className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#1DB954] transition-colors shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold text-gray-300 group-hover:text-white transition-colors leading-none mb-0.5">Songs</p>
+                          <p className="text-[10px] text-gray-600 leading-none">Hall of Fame</p>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/spotify/artist-hall-of-fame"
+                        onClick={() => setShowSpotify(false)}
+                        className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:border-[#1DB954]/30 hover:bg-[#1DB954]/8 transition-all duration-200 group"
+                      >
+                        <Mic2 className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#1DB954] transition-colors shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold text-gray-300 group-hover:text-white transition-colors leading-none mb-0.5">Artists</p>
+                          <p className="text-[10px] text-gray-600 leading-none">Hall of Fame</p>
+                        </div>
+                      </Link>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-600 font-medium tracking-wide uppercase">Spotify</span>
+                      <div className="flex items-center gap-3">
+                        {url && isPlaying && (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-gray-500 hover:text-green-400 transition flex items-center gap-1 group"
+                          >
+                            Open in Spotify
+                            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                          </a>
+                        )}
+                        {isIdle && <span className="text-[11px] text-gray-600">Not playing</span>}
+                        {spotifyData.status === "error" && <span className="text-[11px] text-red-500/70">Unavailable</span>}
+                      </div>
                     </div>
                   </div>
                 </div>
