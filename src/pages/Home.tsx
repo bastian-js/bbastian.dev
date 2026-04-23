@@ -65,7 +65,10 @@ function Home() {
       year: "February 2026",
       title: "Release: PiggyTrack",
       description: "Official release of PiggyTrack to the public.",
-      link: { label: "piggytrack.bbastian.dev", url: "https://piggytrack.bbastian.dev" },
+      link: {
+        label: "piggytrack.bbastian.dev",
+        url: "https://piggytrack.bbastian.dev",
+      },
     },
     {
       year: "April 2026",
@@ -83,6 +86,12 @@ function Home() {
       description:
         "I am a 20-year-old student attending a coding-focused school program, deeply interested in software development, modern web technologies and building real-world applications through hands-on projects.",
       image: "/profile_picture.png",
+      facts: [
+        { icon: "map-pin" as const, label: "Austria" },
+        { icon: "graduation-cap" as const, label: "Coding School" },
+        { icon: "laptop" as const, label: "Web & Mobile" },
+        { icon: "layers" as const, label: "Fullstack" },
+      ],
     },
   ];
 
