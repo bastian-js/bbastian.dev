@@ -8,6 +8,8 @@ import Privacy from "./pages/Privacy";
 import Projects from "./pages/Projects";
 import ProPerform from "./pages/ProPerform";
 import Socials from "./pages/Socials";
+import SpotifyCallback from "./pages/SpotifyCallback";
+import SpotifyStats from "./pages/SpotifyStats";
 
 const routes = [
   {
@@ -49,6 +51,14 @@ const routes = [
   {
     path: "/properform",
     element: <ProPerform />,
+  },
+  {
+    path: "/spotify-stats",
+    element: <SpotifyStats />,
+  },
+  {
+    path: "/spotify-callback",
+    element: <SpotifyCallback />,
   },
 ];
 

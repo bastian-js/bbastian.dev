@@ -337,19 +337,29 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
                   {/* Footer */}
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-gray-600 font-medium tracking-wide uppercase">Spotify</span>
-                    {url && isPlaying && (
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[11px] text-gray-500 hover:text-green-400 transition flex items-center gap-1 group"
+                    <div className="flex items-center gap-3">
+                      <Link
+                        to="/spotify-stats"
+                        onClick={() => setShowSpotify(false)}
+                        className="text-[11px] text-gray-500 hover:text-[#1DB954] transition flex items-center gap-1 group"
                       >
-                        Open
+                        Top Tracks
                         <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-                      </a>
-                    )}
-                    {isIdle && <span className="text-[11px] text-gray-600">Not playing</span>}
-                    {spotifyData.status === "error" && <span className="text-[11px] text-red-500/70">Unavailable</span>}
+                      </Link>
+                      {url && isPlaying && (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-gray-500 hover:text-green-400 transition flex items-center gap-1 group"
+                        >
+                          Open
+                          <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                        </a>
+                      )}
+                      {isIdle && <span className="text-[11px] text-gray-600">Not playing</span>}
+                      {spotifyData.status === "error" && <span className="text-[11px] text-red-500/70">Unavailable</span>}
+                    </div>
                   </div>
                 </div>
               </div>

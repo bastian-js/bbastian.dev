@@ -12,6 +12,71 @@ dotenv.config();
 const app = express();
 const allowedOrigins = ["http://localhost:3030", "http://localhost:5173"];
 
+/* Spotify credentials (needed before CORS for auth routes) */
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+
+const basic = Buffer.from(
+  `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
+).toString("base64");
+const NOW_PLAYING_ENDPOINT =
+  "https://api.spotify.com/v1/me/player/currently-playing";
+const RECENTLY_PLAYED_ENDPOINT =
+  "https://api.spotify.com/v1/me/player/recently-played?limit=1";
+const TOP_TRACKS_ENDPOINT = "https://api.spotify.com/v1/me/top/tracks";
+const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
+
+/* Spotify OAuth – no CORS needed (direct browser navigation) */
+const SPOTIFY_REDIRECT_URI = "https://bbastian.dev/spotify-callback";
+const SPOTIFY_SCOPES = [
+  "user-read-currently-playing",
+  "user-read-recently-played",
+  "user-top-read",
+].join(" ");
+
+app.get("/spotify/auth", (req, res) => {
+  const url =
+    "https://accounts.spotify.com/authorize?" +
+    new URLSearchParams({
+      response_type: "code",
+      client_id: SPOTIFY_CLIENT_ID,
+      scope: SPOTIFY_SCOPES,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+    });
+  res.redirect(url);
+});
+
+app.get("/spotify/exchange", async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.status(400).json({ error: "Missing code" });
+
+  const tokenRes = await fetch(TOKEN_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+    }),
+  });
+
+  const data = await tokenRes.json();
+
+  if (!data.refresh_token) {
+    console.error("Spotify exchange error:", data);
+    return res.status(500).json({ error: "Failed", detail: data });
+  }
+
+  console.log("=== NEW SPOTIFY REFRESH TOKEN ===");
+  console.log(data.refresh_token);
+
+  res.json({ refresh_token: data.refresh_token });
+});
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -99,18 +164,6 @@ app.get("/github-stats", async (req, res) => {
 });
 
 /* Spotify */
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
-
-const basic = Buffer.from(
-  `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
-).toString("base64");
-const NOW_PLAYING_ENDPOINT =
-  "https://api.spotify.com/v1/me/player/currently-playing";
-const RECENTLY_PLAYED_ENDPOINT =
-  "https://api.spotify.com/v1/me/player/recently-played?limit=1";
-const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
 async function getAccessToken() {
   const response = await fetch(TOKEN_ENDPOINT, {
@@ -241,6 +294,53 @@ app.get("/spotify/now-playing", async (req, res) => {
   } catch (error) {
     console.error("Spotify API Error:", error);
     return res.json({ status: "error" });
+  }
+});
+
+/**
+ * GET /spotify/top-tracks
+ * Returns top 10 Spotify tracks for a given time range.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+app.get("/spotify/top-tracks", async (req, res) => {
+  const allowed = ["short_term", "medium_term", "long_term"];
+  const time_range = allowed.includes(req.query.time_range)
+    ? req.query.time_range
+    : "short_term";
+
+  try {
+    const { access_token } = await getAccessToken();
+
+    const response = await fetch(
+      `${TOP_TRACKS_ENDPOINT}?limit=10&time_range=${time_range}`,
+      { headers: { Authorization: `Bearer ${access_token}` } },
+    );
+
+    if (response.status > 400) {
+      const errBody = await response.text();
+      console.error("Spotify Top Tracks status:", response.status, errBody);
+      return res.status(502).json({ error: "Spotify API error", status: response.status });
+    }
+
+    const data = await response.json();
+
+    const tracks = data.items.map((item, index) => ({
+      rank: index + 1,
+      title: item.name,
+      artist: item.artists.map((a) => a.name).join(", "),
+      album: item.album.name,
+      albumArt: item.album.images[0]?.url || "",
+      url: item.external_urls.spotify,
+      duration: item.duration_ms,
+      popularity: item.popularity,
+    }));
+
+    return res.json({ tracks, time_range });
+  } catch (error) {
+    console.error("Spotify Top Tracks Error:", error);
+    return res.status(500).json({ error: "Failed to fetch top tracks" });
   }
 });
 
