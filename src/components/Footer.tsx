@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Github,
-  MessageCircle,
-  Instagram,
-  Twitter,
-  BarChart2,
-  Trophy,
-  Mic2,
-} from "lucide-react";
+import { Github, MessageCircle, Instagram, Twitter } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Footer: React.FC = () => {

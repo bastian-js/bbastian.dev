@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Music, Play, Pause } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 
 type TimeRange = "short_term" | "medium_term" | "long_term";
 
