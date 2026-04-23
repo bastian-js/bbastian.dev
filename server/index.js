@@ -47,36 +47,6 @@ app.get("/spotify/auth", (req, res) => {
   res.redirect(url);
 });
 
-app.get("/spotify/exchange", async (req, res) => {
-  const code = req.query.code;
-  if (!code) return res.status(400).json({ error: "Missing code" });
-
-  const tokenRes = await fetch(TOKEN_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: SPOTIFY_REDIRECT_URI,
-    }),
-  });
-
-  const data = await tokenRes.json();
-
-  if (!data.refresh_token) {
-    console.error("Spotify exchange error:", data);
-    return res.status(500).json({ error: "Failed", detail: data });
-  }
-
-  console.log("=== NEW SPOTIFY REFRESH TOKEN ===");
-  console.log(data.refresh_token);
-
-  res.json({ refresh_token: data.refresh_token });
-});
-
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -227,6 +197,36 @@ async function getRecentlyPlayed() {
 
   return response.json();
 }
+
+app.get("/spotify/exchange", async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.status(400).json({ error: "Missing code" });
+
+  const tokenRes = await fetch(TOKEN_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+    }),
+  });
+
+  const data = await tokenRes.json();
+
+  if (!data.refresh_token) {
+    console.error("Spotify exchange error:", data);
+    return res.status(500).json({ error: "Failed", detail: data });
+  }
+
+  console.log("=== NEW SPOTIFY REFRESH TOKEN ===");
+  console.log(data.refresh_token);
+
+  res.json({ refresh_token: data.refresh_token });
+});
 
 /**
  * GET /spotify/now-playing
