@@ -348,7 +348,7 @@ function Noury() {
               </p>
               <h2 className="text-3xl font-black text-white">Simple & fair.</h2>
               <p className="mt-1.5 text-sm text-gray-500">
-                5-day free trial included. No credit card needed to start.
+                5-day free trial included.
               </p>
             </div>
             <span className="hidden md:block text-xs font-semibold tracking-[0.12em] text-gray-600 uppercase">
