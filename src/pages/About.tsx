@@ -7,6 +7,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import TechStackRadar from "../components/TechStackRadar";
 
 const CODING_SINCE = 2021;
 const yearsCoding = new Date().getFullYear() - CODING_SINCE;
@@ -125,6 +126,9 @@ export default function About() {
             </div>
           ))}
         </div>
+
+        {/* Tech stack radar */}
+        <TechStackRadar />
 
         {/* Currently building */}
         <Link
