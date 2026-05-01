@@ -3,6 +3,8 @@ import Contact from "./pages/Contact";
 import DropNote from "./pages/DropNote";
 import Home from "./pages/Home";
 import Noury from "./pages/Noury";
+import NouryPrivacy from "./pages/NouryPrivacy";
+import NouryTerms from "./pages/NouryTerms";
 import PiggyTrack from "./pages/PiggyTrack";
 import Privacy from "./pages/Privacy";
 import Projects from "./pages/Projects";
@@ -21,6 +23,14 @@ const routes = [
   {
     path: "/noury",
     element: <Noury />,
+  },
+  {
+    path: "/noury/privacy",
+    element: <NouryPrivacy />,
+  },
+  {
+    path: "/noury/terms",
+    element: <NouryTerms />,
   },
   {
     path: "/projects",
