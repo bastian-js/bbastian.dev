@@ -78,6 +78,7 @@ export default function SplashScreen() {
           fontSize: "clamp(18px, 2.5vw, 26px)",
           lineHeight: 1,
           letterSpacing: "0.04em",
+          opacity: animating ? undefined : 0,
           animation: animating
             ? "_splashLogoIn 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.05s both"
             : "none",
@@ -106,6 +107,7 @@ export default function SplashScreen() {
             style={{
               display: "inline-block",
               whiteSpace: "pre",
+              opacity: animating ? undefined : 0,
               animation: animating
                 ? `_splashCharUp 0.5s cubic-bezier(0.22,1,0.36,1) ${0.22 + i * 0.038}s both`
                 : "none",
@@ -124,6 +126,7 @@ export default function SplashScreen() {
           borderRadius: "999px",
           background: "#34d399",
           transformOrigin: "center center",
+          opacity: animating ? undefined : 0,
           animation: animating
             ? "_splashLineExpand 0.45s cubic-bezier(0.22,1,0.36,1) 0.82s both"
             : "none",
