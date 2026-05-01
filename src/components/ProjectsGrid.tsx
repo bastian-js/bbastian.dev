@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ExternalLink, Github, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpRight, Github, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Project {
   title: string;
@@ -16,6 +16,7 @@ interface Project {
   badge?: string;
   badgeColor?: string;
   liveDemoLabel?: string;
+  featured?: boolean;
 }
 
 interface ProjectsGridProps {
@@ -36,8 +37,10 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
   badge,
   liveDemoLabel = "Live Demo",
   index,
+  featured = false,
 }) => {
   const [visible, setVisible] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -47,13 +50,12 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => entry.isIntersecting && setVisible(true),
-      { threshold: 0.08 },
+      { threshold: 0.06 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  // Close modal on Escape
   useEffect(() => {
     if (!showModal) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setShowModal(false);
@@ -68,39 +70,64 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
     <>
       <div
         ref={cardRef}
-        className="flex flex-col bg-[#111] border border-white/6 rounded-2xl overflow-hidden transition-all duration-500 hover:border-white/12 hover:shadow-xl hover:shadow-black/30 group"
+        className={`relative flex flex-col rounded-2xl overflow-hidden${featured ? " sm:col-span-2" : ""}`}
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
-          transition: `opacity 0.5s ease ${index * 60}ms, transform 0.5s ease ${index * 60}ms, border-color 0.2s, box-shadow 0.2s`,
+          transform: visible
+            ? hovered ? "translateY(-3px)" : "translateY(0)"
+            : "translateY(24px)",
+          transition: `opacity 0.5s ease ${index * 70}ms, transform 0.4s cubic-bezier(0.34,1.56,0.64,1) ${visible ? "0ms" : `${index * 70}ms`}, border-color 0.25s, box-shadow 0.3s`,
+          background: "#141414",
+          border: `1px solid ${hovered ? "rgba(255,255,255,0.13)" : "rgba(255,255,255,0.07)"}`,
+          boxShadow: hovered
+            ? `0 12px 40px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)`
+            : "0 2px 8px rgba(0,0,0,0.4)",
         }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        {/* Color accent bar */}
-        <div className="h-[3px] w-full shrink-0" style={{ background: color }} />
+        {/* Glow seam — the only color on the card */}
+        <div
+          style={{
+            height: "1px",
+            background: color,
+            boxShadow: `0 0 ${hovered ? "20px" : "12px"} 2px ${color + (hovered ? "90" : "60")}, 0 0 ${hovered ? "40px" : "24px"} 6px ${color + (hovered ? "40" : "25")}`,
+            transition: "box-shadow 0.3s ease",
+          }}
+        />
 
-        <div className="flex flex-col flex-1 p-5 gap-3">
-          {/* Title row */}
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-bold text-white leading-snug">{title}</h3>
+        <div className={`flex flex-col flex-1 p-6 gap-4 ${featured ? "sm:p-7 items-center text-center" : ""}`}>
+          {/* Title + badge */}
+          <div className={`flex flex-col gap-2 ${featured ? "items-center" : ""}`}>
             {badge && (
               <span
-                className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full text-white tracking-wide"
-                style={{ background: color + "33", color }}
+                className="self-start text-[10px] font-semibold px-2 py-0.5 rounded-md tracking-widest uppercase"
+                style={{ color, background: color + "15" }}
               >
                 {badge}
               </span>
             )}
+            <h3
+              className={`font-semibold text-white leading-tight tracking-tight ${featured ? "text-2xl" : "text-lg"}`}
+            >
+              {title}
+            </h3>
           </div>
 
           {/* Description */}
-          <p className="text-sm text-gray-500 leading-relaxed flex-1 text-left">{description}</p>
+          <p
+            className={`text-gray-500 leading-relaxed flex-1 ${featured ? "text-sm max-w-md" : "text-[13px]"}`}
+          >
+            {description}
+          </p>
 
           {/* Tech tags */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className={`flex flex-wrap gap-1.5 ${featured ? "justify-center" : ""}`}>
             {technologies.map((tech) => (
               <span
                 key={tech}
-                className="px-2.5 py-1 text-xs text-gray-400 bg-white/4 border border-white/6 rounded-full"
+                className="px-2 py-0.5 text-[11px] font-medium text-gray-500 rounded-md"
+                style={{ background: "rgba(255,255,255,0.05)" }}
               >
                 {tech}
               </span>
@@ -108,13 +135,14 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-1">
+          <div className={`flex items-center gap-2 pt-1 ${featured ? "justify-center" : ""}`}>
             {showGithub && githubUrl && (
               <a
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 hover:border-white/12 rounded-lg transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-white rounded-lg transition-colors duration-200"
+                style={{ background: "rgba(255,255,255,0.05)" }}
               >
                 <Github className="w-3.5 h-3.5" />
                 GitHub
@@ -125,20 +153,20 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
                 href={liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-black"
-                style={{ background: color }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 hover:opacity-90"
+                style={{ background: color, color: "#000" }}
               >
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ArrowUpRight className="w-3.5 h-3.5" />
                 {liveDemoLabel}
               </a>
             )}
             {showDetailsBtn && (
               <button
                 onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-black cursor-pointer"
-                style={{ background: color }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 hover:opacity-90 cursor-pointer"
+                style={{ background: color, color: "#000" }}
               >
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ArrowUpRight className="w-3.5 h-3.5" />
                 Details
               </button>
             )}
@@ -149,20 +177,29 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
       {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="relative bg-[#111] border border-white/8 rounded-3xl w-full max-w-lg shadow-2xl shadow-black/60 overflow-hidden"
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl"
             style={{
-              animation: "modalIn 0.2s ease-out forwards",
+              background: "#161616",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 32px 80px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.5)",
+              animation: "modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1) forwards",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <style>{`@keyframes modalIn { from { opacity:0; transform:scale(0.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }`}</style>
+            <style>{`@keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(12px) } to { opacity:1; transform:scale(1) translateY(0) } }`}</style>
 
-            {/* Color bar */}
-            <div className="h-[3px]" style={{ background: color }} />
+            {/* Glow seam */}
+            <div
+              style={{
+                height: "1px",
+                background: color,
+                boxShadow: `0 0 20px 3px ${color}70, 0 0 40px 8px ${color}30`,
+              }}
+            />
 
             {/* Image carousel */}
             {images && images.length > 0 && (
@@ -200,42 +237,39 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
               </div>
             )}
 
-            {/* Content */}
             <div className="p-6">
-              {/* Header */}
               <div className="flex items-start justify-between gap-3 mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white">{title}</h2>
+                <div className="flex flex-col gap-1.5">
                   {badge && (
                     <span
-                      className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide"
-                      style={{ background: color + "22", color }}
+                      className="self-start text-[10px] font-semibold px-2 py-0.5 rounded-md tracking-widest uppercase"
+                      style={{ color, background: color + "15" }}
                     >
                       {badge}
                     </span>
                   )}
+                  <h2 className="text-xl font-semibold text-white tracking-tight">{title}</h2>
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-gray-600 hover:text-white transition p-1 cursor-pointer shrink-0"
+                  className="text-gray-600 hover:text-white transition p-1 cursor-pointer shrink-0 mt-0.5"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-gray-400 leading-relaxed mb-5">
+              <p className="text-sm text-gray-500 leading-relaxed mb-5">
                 {longDescription || description}
               </p>
 
-              {/* Tech */}
               <div className="mb-6">
-                <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2.5">Stack</p>
+                <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest mb-2.5">Stack</p>
                 <div className="flex flex-wrap gap-1.5">
                   {technologies.map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-1 text-xs text-gray-400 bg-white/4 border border-white/6 rounded-full"
+                      className="px-2.5 py-1 text-xs text-gray-500 rounded-md"
+                      style={{ background: "rgba(255,255,255,0.05)" }}
                     >
                       {tech}
                     </span>
@@ -243,14 +277,17 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 justify-end pt-2 border-t border-white/6">
+              <div
+                className="flex items-center gap-2 justify-end pt-4"
+                style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+              >
                 {showGithub && githubUrl && (
                   <a
                     href={githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 rounded-xl transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-500 hover:text-white rounded-xl transition-colors"
+                    style={{ background: "rgba(255,255,255,0.05)" }}
                   >
                     <Github className="w-4 h-4" />
                     GitHub
@@ -261,16 +298,17 @@ const ProjectCard: React.FC<Project & { index: number }> = ({
                     href={liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-all text-black"
-                    style={{ background: color }}
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all hover:opacity-90"
+                    style={{ background: color, color: "#000" }}
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ArrowUpRight className="w-4 h-4" />
                     Live Demo
                   </a>
                 )}
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-white/4 hover:bg-white/8 border border-white/6 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-white rounded-xl transition-colors cursor-pointer"
+                  style={{ background: "rgba(255,255,255,0.05)" }}
                 >
                   Close
                 </button>
@@ -287,7 +325,7 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({ projects }) => {
   return (
     <div className="w-full bg-[#0a0a0a] py-16 px-4">
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {projects.map((project, i) => (
             <ProjectCard key={i} index={i} {...project} />
           ))}

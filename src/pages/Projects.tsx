@@ -2,6 +2,18 @@ import ProjectsGrid from "../components/ProjectsGrid";
 
 const projects = [
   {
+    title: "Noury",
+    description:
+      "A nutrition and fitness app for calorie tracking, meal logging, and personalized progress with a clean minimal UI.",
+    technologies: ["TypeScript", "React Native", "Express", "MariaDB"],
+    color: "#4ACDB5",
+    showGithub: false,
+    badge: "COMING SOON",
+    liveUrl: "https://bbastian.dev/noury",
+    liveDemoLabel: "Visit Website",
+    featured: true,
+  },
+  {
     title: "ProPerform",
     description:
       "Diploma project for tracking training sessions, creating gym exercises and workout plans with a modern UI.",
@@ -13,15 +25,7 @@ const projects = [
     liveUrl: "https://properform.app",
     liveDemoLabel: "Visit Website",
   },
-  {
-    title: "Noury",
-    description:
-      "A nutrition and fitness app for calorie tracking, meal logging, and personalized progress with a clean minimal UI.",
-    technologies: ["TypeScript", "React Native", "Express", "MariaDB"],
-    color: "#4ACDB5",
-    showGithub: false,
-    badge: "COMING SOON",
-  },
+
   {
     title: "PiggyTrack",
     description:

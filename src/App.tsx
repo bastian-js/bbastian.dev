@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import Minesweeper from "./components/Minesweeper";
 import HackerTerminal from "./components/HackerTerminal";
 import ShortcutsOverlay from "./components/ShortcutsOverlay";
+import SplashScreen from "./components/SplashScreen";
 import NotFound from "./pages/NotFound";
 
 const KONAMI = [
@@ -122,6 +123,7 @@ function App() {
         <Footer />
       </div>
 
+      <SplashScreen />
       {minesweeper && <Minesweeper onClose={() => setMinesweeper(false)} />}
       {hacker && <HackerTerminal onClose={() => setHacker(false)} />}
       {shortcuts && <ShortcutsOverlay onClose={() => setShortcuts(false)} />}
