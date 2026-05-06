@@ -8,10 +8,11 @@ import {
   Mail,
   MapPin,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 const CONTACT_EMAIL = "hello@bbastian.dev";
-const LAST_UPDATED = "1. Mai 2026";
+const LAST_UPDATED = "6. Mai 2026";
 
 interface Section {
   icon: React.ElementType;
@@ -68,21 +69,31 @@ export default function NouryTerms() {
       icon: CreditCard,
       title: "Subscriptions & billing",
       content: (
-        <ul className="space-y-2 text-sm text-gray-400 leading-relaxed">
-          {[
-            "Noury offers a free tier and an optional Premium subscription. Premium features are clearly labelled within the app.",
-            "Subscriptions are billed through Apple's in-app purchase system. Payment is charged to your Apple ID upon confirmation.",
-            "Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current billing period.",
-            "You can manage or cancel your subscription at any time in your Apple ID account settings or in the App Store.",
-            "No refunds are provided for partial subscription periods, except as required by applicable law (including mandatory EU consumer protection rights).",
-            "Prices may change. You will be notified in advance of any price increase before your subscription renews.",
-          ].map((item) => (
-            <li key={item} className="text-left flex gap-2">
-              <span className="text-emerald-500 mt-0.5 shrink-0">•</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-3">
+          <ul className="space-y-2 text-sm text-gray-400 leading-relaxed">
+            {[
+              "Noury offers a free tier and an optional Premium subscription. Premium features are clearly labelled within the app.",
+              "Subscriptions are billed through Apple's in-app purchase system. Payment is charged to your Apple ID upon confirmation.",
+              "Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current billing period.",
+              "You can manage or cancel your subscription at any time in your Apple ID account settings or in the App Store.",
+              "No refunds are provided for partial subscription periods, except as required by applicable law (including mandatory EU consumer protection rights).",
+              "Prices may change. You will be notified in advance of any price increase before your subscription renews.",
+            ].map((item) => (
+              <li key={item} className="text-left flex gap-2">
+                <span className="text-emerald-500 mt-0.5 shrink-0">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="p-3 rounded-xl bg-white/3 border border-white/8 text-left">
+            <p className="text-xs font-semibold text-gray-400 mb-2">Required disclosure (Apple App Store)</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Subscription title, length, and price are shown in the app before purchase. By subscribing you confirm you have read and agree to our{" "}
+              <a href="/noury/privacy" className="text-emerald-400 hover:underline underline-offset-2">Privacy Policy</a>
+              {" "}and these Terms of Service. Cancel any time in <span className="text-gray-400">Settings → Apple ID → Subscriptions</span>.
+            </p>
+          </div>
+        </div>
       ),
     },
     {
@@ -141,6 +152,30 @@ export default function NouryTerms() {
       ),
     },
     {
+      icon: Trash2,
+      title: "Account deletion",
+      content: (
+        <div className="space-y-3">
+          <p className="text-left text-sm text-gray-400 leading-relaxed">
+            You may delete your account at any time directly within the app:
+          </p>
+          <ul className="space-y-2 text-sm text-gray-400 leading-relaxed">
+            {[
+              'Navigate to Settings → "Delete account" and follow the confirmation steps.',
+              "Deletion is permanent. All personal data (meals, profile, health data) is erased within 30 days.",
+              "Purchase records may be retained as required by applicable tax law (Austria: 7 years).",
+              "If you are unable to access the app, contact us at hello@bbastian.dev to request deletion.",
+            ].map((item) => (
+              <li key={item} className="text-left flex gap-2">
+                <span className="text-emerald-500 mt-0.5 shrink-0">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ),
+    },
+    {
       icon: RefreshCw,
       title: "Service availability & changes",
       content: (
@@ -187,8 +222,6 @@ export default function NouryTerms() {
     },
     {
       icon: Mail,
-      // TODO: Replace "Bastian" with your full legal name, business name, and postal address
-      // before submitting to app stores or publishing these terms.
       title: "Contact",
       content: (
         <div className="space-y-2">

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const CONTACT_EMAIL = "hello@bbastian.dev";
-const LAST_UPDATED = "1. Mai 2026";
+const LAST_UPDATED = "6. Mai 2026";
 
 interface Section {
   icon: React.ElementType;
@@ -32,7 +32,7 @@ export default function NouryPrivacy() {
             {
               label: "Account & contact",
               detail:
-                "Your e-mail address is collected when you create an account. It is used exclusively for authentication and account recovery.",
+                "Your e-mail address is collected when you create an account via email/password, Google Sign-In, or Sign in with Apple. When you use Sign in with Apple you may choose to share a private relay address instead of your real email. This data is used exclusively for authentication and account recovery.",
             },
             {
               label: "Health & fitness data",
@@ -161,6 +161,16 @@ export default function NouryPrivacy() {
         <div className="space-y-2">
           {[
             {
+              name: "Apple (Sign in with Apple)",
+              role: "Authentication",
+              icon: Shield,
+              accent: "text-gray-300",
+              bg: "bg-white/4",
+              border: "border-white/10",
+              detail:
+                "Used as an optional login method. Apple only shares your name and email (or a private relay address) — no behavioral data is collected for advertising purposes. Apple's privacy policy applies: apple.com/legal/privacy.",
+            },
+            {
               name: "Google Gemini",
               role: "AI analysis",
               icon: Cpu,
@@ -178,7 +188,7 @@ export default function NouryPrivacy() {
               bg: "bg-violet-500/8",
               border: "border-violet-500/15",
               detail:
-                "Handles in-app purchase verification. Receives your Apple-issued receipt and assigns a subscriber ID. No raw card data is ever processed.",
+                "Handles in-app purchase verification. Receives your Apple-issued receipt and assigns a subscriber ID. No raw card data is ever processed. RevenueCat may collect anonymised subscription analytics.",
             },
             {
               name: "Expo",
@@ -230,6 +240,7 @@ export default function NouryPrivacy() {
           </p>
           <ul className="space-y-2">
             {[
+              "Apple Inc. (USA) — Sign in with Apple authentication is processed on Apple's infrastructure. Apple participates in the EU–US Data Privacy Framework.",
               "Google Gemini (Google LLC, USA) — processes meal photos, audio, and text on US-based infrastructure. Google participates in the EU–US Data Privacy Framework and uses Standard Contractual Clauses (SCCs) as a transfer safeguard.",
               "RevenueCat (RevenueCat, Inc., USA) — processes purchase receipts on US infrastructure, covered by their data processing agreement and SCCs.",
               "Expo (Expo Technology, Inc., USA) — push notification tokens may be processed via US infrastructure.",
@@ -258,7 +269,7 @@ export default function NouryPrivacy() {
             },
             {
               right: "Right to erasure",
-              desc: 'Delete your account and all associated data from within the app (Settings → "Delete account") or by contacting us.',
+              desc: 'Permanently delete your account and all associated personal data from within the app (Settings → "Delete account"). All data is removed within 30 days. You can also request deletion by email.',
             },
             {
               right: "Right to rectification",
@@ -313,8 +324,6 @@ export default function NouryPrivacy() {
     },
     {
       icon: Mail,
-      // TODO: Replace "Bastian" with your full legal name, business name, and postal address
-      // before submitting to app stores or publishing this policy.
       title: "Contact & responsible party",
       content: (
         <div className="space-y-2">
