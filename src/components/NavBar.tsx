@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Menu, Keyboard, BarChart2, Trophy, Mic2 } from "lucide-react";
+import { X, Menu, Keyboard, BarChart2, Trophy, Mic2, Search } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface SpotifyTrack {
@@ -36,9 +36,10 @@ interface SpotifyStatus {
 
 interface NavBarProps {
   onOpenShortcuts?: () => void;
+  onOpenSearch?: () => void;
 }
 
-function NavBar({ onOpenShortcuts }: NavBarProps) {
+function NavBar({ onOpenShortcuts, onOpenSearch }: NavBarProps) {
   const location = useLocation();
   const path = location.pathname;
 
@@ -171,24 +172,40 @@ function NavBar({ onOpenShortcuts }: NavBarProps) {
                 <Link
                   key={href}
                   to={href}
-                  className={`relative pb-2 transition-colors ${
+                  className={`relative transition-colors ${
                     path === href ? "text-white" : "text-gray-400 hover:text-gray-200"
                   }`}
                 >
                   {href.replace("/", "").toUpperCase()}
-                  <span className={`absolute left-0 bottom-0 h-0.5 rounded-full transition-all ${
+                  <span className={`absolute left-0 -bottom-2 h-0.5 rounded-full transition-all ${
                     path === href ? "w-full bg-emerald-400" : "w-0 bg-emerald-400 hover:w-full"
                   }`} />
                 </Link>
               ))}
               <button
+                onClick={onOpenSearch}
+                title="Search (Ctrl+K)"
+                className="text-gray-500 hover:text-gray-200 transition cursor-pointer"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+              <button
                 onClick={onOpenShortcuts}
                 title="Keyboard shortcuts (?)"
-                className="pb-2 text-gray-500 hover:text-gray-200 transition cursor-pointer"
+                className="text-gray-500 hover:text-gray-200 transition cursor-pointer"
               >
                 <Keyboard className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Search (mobile) */}
+            <button
+              className="md:hidden p-1.5 text-gray-400 hover:text-white transition cursor-pointer"
+              onClick={onOpenSearch}
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
 
             {/* Mobile hamburger */}
             <button

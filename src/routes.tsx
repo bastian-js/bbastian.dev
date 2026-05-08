@@ -2,6 +2,7 @@ import AboutSection from "./pages/About";
 import Contact from "./pages/Contact";
 import DropNote from "./pages/DropNote";
 import Home from "./pages/Home";
+import Now from "./pages/Now";
 import Noury from "./pages/Noury";
 import NouryPrivacy from "./pages/NouryPrivacy";
 import NouryTerms from "./pages/NouryTerms";
@@ -31,6 +32,10 @@ const routes = [
   {
     path: "/noury/terms",
     element: <NouryTerms />,
+  },
+  {
+    path: "/now",
+    element: <Now />,
   },
   {
     path: "/projects",

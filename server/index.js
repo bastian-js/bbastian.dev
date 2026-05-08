@@ -640,6 +640,109 @@ app.get("/noury/waitlist/count", async (req, res) => {
   }
 });
 
+/* ── Leaderboard ─────────────────────────────────────────────────────────── */
+
+const leaderboardLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  handler: (_req, res) =>
+    res.status(429).json({ error: "Too many submissions. Try again later." }),
+});
+
+const nameSchema = z.string().min(1).max(20).regex(/^[^\s].*/, "Name can't start with a space");
+
+/**
+ * GET /leaderboard/minesweeper?difficulty=beginner
+ * Returns top 10 scores for a difficulty, sorted by fastest time.
+ */
+app.get("/leaderboard/minesweeper", async (req, res) => {
+  const allowed = ["beginner", "intermediate", "expert"];
+  const difficulty = allowed.includes(req.query.difficulty)
+    ? req.query.difficulty
+    : "beginner";
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT id, name, time_secs, difficulty, created_at
+       FROM minesweeper_scores
+       WHERE difficulty = ?
+       ORDER BY time_secs ASC
+       LIMIT 10`,
+      [difficulty],
+    );
+    res.json({ scores: rows, difficulty });
+  } catch (err) {
+    console.error("Minesweeper leaderboard GET error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
+ * POST /leaderboard/minesweeper
+ * Body: { name, time_secs, difficulty }
+ */
+app.post("/leaderboard/minesweeper", leaderboardLimiter, async (req, res) => {
+  try {
+    const name = nameSchema.parse((req.body.name ?? "").trim());
+    const time_secs = z.number().int().min(1).max(9999).parse(Number(req.body.time_secs));
+    const difficulty = z
+      .enum(["beginner", "intermediate", "expert"])
+      .parse(req.body.difficulty);
+
+    await db.execute(
+      `INSERT INTO minesweeper_scores (name, time_secs, difficulty) VALUES (?, ?, ?)`,
+      [name, time_secs, difficulty],
+    );
+    res.json({ success: true });
+  } catch (err) {
+    if (err instanceof z.ZodError)
+      return res.status(400).json({ error: "Invalid input" });
+    console.error("Minesweeper leaderboard POST error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
+ * GET /leaderboard/snake
+ * Returns top 10 scores, sorted by highest score.
+ */
+app.get("/leaderboard/snake", async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      `SELECT id, name, score, created_at
+       FROM snake_scores
+       ORDER BY score DESC
+       LIMIT 10`,
+    );
+    res.json({ scores: rows });
+  } catch (err) {
+    console.error("Snake leaderboard GET error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
+ * POST /leaderboard/snake
+ * Body: { name, score }
+ */
+app.post("/leaderboard/snake", leaderboardLimiter, async (req, res) => {
+  try {
+    const name = nameSchema.parse((req.body.name ?? "").trim());
+    const score = z.number().int().min(10).max(99999).parse(Number(req.body.score));
+
+    await db.execute(
+      `INSERT INTO snake_scores (name, score) VALUES (?, ?)`,
+      [name, score],
+    );
+    res.json({ success: true });
+  } catch (err) {
+    if (err instanceof z.ZodError)
+      return res.status(400).json({ error: "Invalid input" });
+    console.error("Snake leaderboard POST error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server läuft auf Port ${process.env.PORT}`);
 });

@@ -136,7 +136,7 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
 
   return (
     <div className="w-full bg-[#0a0a0a] py-16 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         {/* ── Desktop snake layout ── */}
         <div className="hidden md:block">

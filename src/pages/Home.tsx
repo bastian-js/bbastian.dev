@@ -3,6 +3,7 @@ import { Code2, Terminal, Bot, Globe, Type, Music, Laptop } from "lucide-react";
 import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
+import FadeIn from "../components/FadeIn";
 
 interface TimelineItem {
   year: string;
@@ -103,6 +104,7 @@ function Home() {
     { name: "C#", icon: "/csharp.svg" },
     { name: "HTML", icon: "/html.svg" },
     { name: "CSS", icon: "/css.svg" },
+    { name: "MariaDB", icon: "" },
   ];
 
   return (
@@ -131,17 +133,19 @@ function Home() {
         </div>
       </Link>
 
-      <Infobox items={infoboxItems} />
+      <FadeIn>
+        <Infobox items={infoboxItems} />
+      </FadeIn>
 
       <VerticalTimeline items={timelineItems} />
 
       <div className="w-full bg-[#0a0a0a] pt-16 pb-0 px-4">
-        <div className="max-w-6xl mx-auto text-center">
+        <FadeIn className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-3">Technologies</h2>
           <p className="text-gray-500 text-sm">
             Languages and frameworks I work with regularly.
           </p>
-        </div>
+        </FadeIn>
       </div>
 
       <TechnologiesGrid items={technologiesGridItems} />
@@ -149,9 +153,9 @@ function Home() {
       {/* Setup */}
       <div className="w-full bg-[#0a0a0a] py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-8 text-center">
+          <FadeIn className="mb-8 text-center">
             <h2 className="text-4xl font-bold mt-5">Setup</h2>
-          </div>
+          </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
@@ -204,27 +208,30 @@ function Home() {
                 color: "#888888",
                 Icon: Laptop,
               },
-            ].map(({ label, name, detail, color, Icon }) => (
-              <div
+            ].map(({ label, name, detail, color, Icon }, i, arr) => (
+              <FadeIn
                 key={name}
-                className="flex items-center gap-4 px-4 py-4 bg-[#111] border border-white/6 rounded-xl hover:border-white/10 transition-all duration-150"
+                delay={i * 60}
+                className={i === arr.length - 1 ? "lg:col-span-3" : ""}
               >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: color + "18", color }}
-                >
-                  <Icon className="w-5 h-5" />
+                <div className="flex items-center gap-4 px-4 py-4 bg-[#111] border border-white/6 rounded-xl hover:border-white/10 transition-colors duration-150 h-full">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: color + "18", color }}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 text-left">
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">
+                      {label}
+                    </p>
+                    <p className="text-base font-semibold text-white leading-tight">
+                      {name}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">{detail}</p>
+                  </div>
                 </div>
-                <div className="min-w-0 text-left">
-                  <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">
-                    {label}
-                  </p>
-                  <p className="text-base font-semibold text-white leading-tight">
-                    {name}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-0.5">{detail}</p>
-                </div>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
