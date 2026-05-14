@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Code2, Terminal, Bot, Globe, Type, Music, Laptop } from "lucide-react";
+import { ArrowUpRight, Code2, Terminal, Bot, Globe, Type, Music, Laptop } from "lucide-react";
 import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
@@ -154,7 +154,10 @@ function Home() {
       <div className="w-full bg-[#0a0a0a] py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <FadeIn className="mb-8 text-center">
-            <h2 className="text-4xl font-bold mt-5">Setup</h2>
+            <Link to="/setup" className="inline-flex items-center gap-2 group">
+              <h2 className="text-4xl font-bold mt-5">Setup</h2>
+              <ArrowUpRight className="w-6 h-6 mt-5 text-gray-600 group-hover:text-white transition-colors duration-150" />
+            </Link>
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

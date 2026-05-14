@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: "Socials",  path: "/socials" },
   { label: "Contact",  path: "/contact" },
   { label: "Now",      path: "/now" },
+  { label: "Setup",    path: "/setup" },
 ];
 
 const LEGAL_LINKS = [

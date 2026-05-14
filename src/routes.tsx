@@ -6,6 +6,7 @@ import Now from "./pages/Now";
 import Privacy from "./pages/Privacy";
 import Projects from "./pages/Projects";
 import ProPerform from "./pages/ProPerform";
+import Setup from "./pages/Setup";
 import Socials from "./pages/Socials";
 import Terms from "./pages/Terms";
 
@@ -30,6 +31,7 @@ const routes = [
   { path: "/contact", element: <Contact /> },
   { path: "/about", element: <AboutSection /> },
   { path: "/now", element: <Now /> },
+  { path: "/setup", element: <Setup /> },
   { path: "/privacy", element: <Privacy /> },
   { path: "/terms", element: <Terms /> },
 
