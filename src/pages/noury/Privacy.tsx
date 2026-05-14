@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const CONTACT_EMAIL = "hello@bbastian.dev";
-const LAST_UPDATED = "6. Mai 2026";
+const LAST_UPDATED = "6. May 2026";
 
 interface Section {
   icon: React.ElementType;
@@ -106,7 +106,9 @@ export default function NouryPrivacy() {
             </li>
           </ul>
           <div className="mt-3 p-3 rounded-xl bg-white/3 border border-white/8 space-y-2">
-            <p className="text-xs font-semibold text-gray-400 mb-2">Legal basis (GDPR Art. 6)</p>
+            <p className="text-xs font-semibold text-gray-400 mb-2">
+              Legal basis (GDPR Art. 6)
+            </p>
             {[
               {
                 article: "Art. 6(1)(b)",
@@ -125,7 +127,9 @@ export default function NouryPrivacy() {
               },
             ].map(({ article, label, desc }) => (
               <div key={article} className="flex gap-2 text-xs text-left">
-                <span className="shrink-0 font-mono text-emerald-500/80 mt-0.5">{article}</span>
+                <span className="shrink-0 font-mono text-emerald-500/80 mt-0.5">
+                  {article}
+                </span>
                 <span className="text-gray-500">
                   <strong className="text-gray-400">{label}</strong> — {desc}
                 </span>
@@ -211,18 +215,25 @@ export default function NouryPrivacy() {
                 "All user data (meals, profile, photos) is stored on Supabase servers in Frankfurt, EU. Row-level security ensures only you can access your data.",
             },
           ].map(({ name, role, icon: Icon, accent, bg, border, detail }) => (
-            <div key={name} className={`flex gap-3 p-4 rounded-xl ${bg} border ${border}`}>
+            <div
+              key={name}
+              className={`flex gap-3 p-4 rounded-xl ${bg} border ${border}`}
+            >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white/5">
                 <Icon className={`w-4 h-4 ${accent}`} />
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm font-semibold text-gray-200">{name}</p>
-                  <span className={`inline-flex items-center text-[10px] font-semibold px-3 py-1.5 rounded-full bg-white/5 ${accent}`}>
+                  <span
+                    className={`inline-flex items-center text-[10px] font-semibold px-3 py-1.5 rounded-full bg-white/5 ${accent}`}
+                  >
                     {role}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed text-left">{detail}</p>
+                <p className="text-xs text-gray-500 leading-relaxed text-left">
+                  {detail}
+                </p>
               </div>
             </div>
           ))}
@@ -252,7 +263,9 @@ export default function NouryPrivacy() {
             ))}
           </ul>
           <p className="text-left text-xs text-gray-500">
-            Where transfers occur, appropriate safeguards are in place as required by Art. 46 GDPR (Standard Contractual Clauses or equivalent adequacy decisions).
+            Where transfers occur, appropriate safeguards are in place as
+            required by Art. 46 GDPR (Standard Contractual Clauses or equivalent
+            adequacy decisions).
           </p>
         </div>
       ),

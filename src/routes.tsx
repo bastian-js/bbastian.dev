@@ -3,88 +3,51 @@ import Contact from "./pages/Contact";
 import DropNote from "./pages/DropNote";
 import Home from "./pages/Home";
 import Now from "./pages/Now";
-import Noury from "./pages/Noury";
-import NouryPrivacy from "./pages/NouryPrivacy";
-import NouryTerms from "./pages/NouryTerms";
-import PiggyTrack from "./pages/PiggyTrack";
 import Privacy from "./pages/Privacy";
 import Projects from "./pages/Projects";
 import ProPerform from "./pages/ProPerform";
 import Socials from "./pages/Socials";
-import SpotifyCallback from "./pages/SpotifyCallback";
-import SpotifyArtistHallOfFame from "./pages/SpotifyArtistHallOfFame";
-import SpotifyHallOfFame from "./pages/SpotifyHallOfFame";
-import SpotifyStats from "./pages/SpotifyStats";
+import Terms from "./pages/Terms";
+
+// Noury
+import Noury from "./pages/noury/Page";
+import NouryPrivacy from "./pages/noury/Privacy";
+import NouryTerms from "./pages/noury/Terms";
+
+// Spotify
+import SpotifyCallback from "./pages/spotify/Callback";
+import SpotifyArtistHallOfFame from "./pages/spotify/ArtistHallOfFame";
+import SpotifyHallOfFame from "./pages/spotify/HallOfFame";
+import SpotifyStats from "./pages/spotify/Stats";
+
+// Apps
+import PiggyTrack from "./pages/PiggyTrack";
 
 const routes = [
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/noury",
-    element: <Noury />,
-  },
-  {
-    path: "/noury/privacy",
-    element: <NouryPrivacy />,
-  },
-  {
-    path: "/noury/terms",
-    element: <NouryTerms />,
-  },
-  {
-    path: "/now",
-    element: <Now />,
-  },
-  {
-    path: "/projects",
-    element: <Projects />,
-  },
-  {
-    path: "/socials",
-    element: <Socials />,
-  },
-  {
-    path: "/contact",
-    element: <Contact />,
-  },
-  {
-    path: "/about",
-    element: <AboutSection />,
-  },
-  {
-    path: "/privacy",
-    element: <Privacy />,
-  },
-  {
-    path: "/piggytrack",
-    element: <PiggyTrack />,
-  },
-  {
-    path: "/dropnote",
-    element: <DropNote />,
-  },
-  {
-    path: "/properform",
-    element: <ProPerform />,
-  },
-  {
-    path: "/spotify/stats",
-    element: <SpotifyStats />,
-  },
-  {
-    path: "/spotify-callback",
-    element: <SpotifyCallback />,
-  },
-  {
-    path: "/spotify/hall-of-fame",
-    element: <SpotifyHallOfFame />,
-  },
-  {
-    path: "/spotify/artist-hall-of-fame",
-    element: <SpotifyArtistHallOfFame />,
-  },
+  { path: "/", element: <Home /> },
+  { path: "/projects", element: <Projects /> },
+  { path: "/socials", element: <Socials /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/about", element: <AboutSection /> },
+  { path: "/now", element: <Now /> },
+  { path: "/privacy", element: <Privacy /> },
+  { path: "/terms", element: <Terms /> },
+
+  // Noury
+  { path: "/noury", element: <Noury /> },
+  { path: "/noury/privacy", element: <NouryPrivacy /> },
+  { path: "/noury/terms", element: <NouryTerms /> },
+
+  // Spotify
+  { path: "/spotify/stats", element: <SpotifyStats /> },
+  { path: "/spotify-callback", element: <SpotifyCallback /> },
+  { path: "/spotify/hall-of-fame", element: <SpotifyHallOfFame /> },
+  { path: "/spotify/artist-hall-of-fame", element: <SpotifyArtistHallOfFame /> },
+
+  // Apps
+  { path: "/piggytrack", element: <PiggyTrack /> },
+  { path: "/dropnote", element: <DropNote /> },
+  { path: "/properform", element: <ProPerform /> },
 ];
 
 export default routes;

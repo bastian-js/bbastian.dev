@@ -1,6 +1,7 @@
 import ProjectsGrid from "../components/ProjectsGrid";
+import type { Project } from "../components/ProjectsGrid";
 
-const projects = [
+const projects: Project[] = [
   {
     title: "Noury",
     description:
@@ -25,7 +26,6 @@ const projects = [
     liveUrl: "https://properform.app",
     liveDemoLabel: "Visit Website",
   },
-
   {
     title: "PiggyTrack",
     description:
@@ -46,6 +46,7 @@ const projects = [
     technologies: ["Swift", "SwiftUI", "macOS"],
     color: "#10B981",
     githubUrl: "https://github.com/bastian-js/dropnote",
+    showLiveDemo: false,
   },
   {
     title: "Giveaway Discord Bot",
@@ -56,6 +57,7 @@ const projects = [
     technologies: ["JavaScript", "Discord.js", "Node.js"],
     color: "#F59E0B",
     githubUrl: "https://github.com/bastian-js/giveaway-bot",
+    showLiveDemo: false,
   },
   {
     title: "Echoverse",
@@ -65,18 +67,30 @@ const projects = [
     color: "#EF4444",
     liveUrl: "https://echoverse.bbastian.dev",
     showGithub: false,
+    liveDemoLabel: "Play",
   },
 ];
 
 function Projects() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-16 px-4">
+    <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-24 px-4 sm:px-6">
       {/* Header */}
-      <div className="max-w-lg mx-auto mb-12 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-white mb-3">
-          Projects
-        </h1>
-        <p className="text-gray-500 text-sm leading-relaxed">
+      <div className="max-w-3xl mx-auto mb-12">
+        <div className="flex items-end justify-between gap-4 mb-4">
+          <h1
+            className="font-black tracking-tight text-white leading-none"
+            style={{ fontSize: "clamp(36px, 7vw, 56px)" }}
+          >
+            Projects
+          </h1>
+          <span
+            className="text-xs font-mono mb-1 shrink-0"
+            style={{ color: "rgba(255,255,255,0.2)" }}
+          >
+            {String(projects.length).padStart(2, "0")} total
+          </span>
+        </div>
+        <p className="text-left text-gray-500 text-sm leading-relaxed max-w-md">
           A collection of things I've built — from mobile apps and macOS tools
           to web apps and Discord bots.
         </p>
