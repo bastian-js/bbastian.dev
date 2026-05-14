@@ -4,25 +4,40 @@ import { Link, useLocation } from "react-router-dom";
 import MagneticWrapper from "./MagneticWrapper";
 
 const NAV_LINKS = [
-  { label: "Home",     path: "/" },
+  { label: "Home", path: "/" },
   { label: "Projects", path: "/projects" },
-  { label: "About",    path: "/about" },
-  { label: "Socials",  path: "/socials" },
-  { label: "Contact",  path: "/contact" },
-  { label: "Now",      path: "/now" },
-  { label: "Setup",    path: "/setup" },
+  { label: "About", path: "/about" },
+  { label: "Socials", path: "/socials" },
+  { label: "Contact", path: "/contact" },
+  { label: "Now", path: "/now" },
+  { label: "Setup", path: "/setup" },
 ];
 
 const LEGAL_LINKS = [
   { label: "Privacy Policy", path: "/privacy" },
-  { label: "Terms of Use",   path: "/terms" },
+  { label: "Terms of Use", path: "/terms" },
 ];
 
 const SOCIALS = [
-  { name: "GitHub",    Icon: Github,         url: "https://github.com/bastian-js",              color: "#ffffff" },
-  { name: "Twitter",   Icon: Twitter,        url: "https://x.com/knuddelghg",                   color: "#1DA1F2" },
-  { name: "Instagram", Icon: Instagram,      url: "https://www.instagram.com/bbastiann._/",     color: "#E4405F" },
-  { name: "Contact",   Icon: MessageCircle,  url: "/contact",                                   color: "#5865F2" },
+  {
+    name: "GitHub",
+    Icon: Github,
+    url: "https://github.com/bastian-js",
+    color: "#ffffff",
+  },
+  {
+    name: "Twitter",
+    Icon: Twitter,
+    url: "https://x.com/knuddelghg",
+    color: "#1DA1F2",
+  },
+  {
+    name: "Instagram",
+    Icon: Instagram,
+    url: "https://www.instagram.com/bbastiann._/",
+    color: "#E4405F",
+  },
+  { name: "Contact", Icon: MessageCircle, url: "/contact", color: "#5865F2" },
 ];
 
 const Footer: React.FC = () => {
@@ -37,9 +52,7 @@ const Footer: React.FC = () => {
       }}
     >
       {/* ── Identity band ─────────────────────────────────────── */}
-      <div
-        className="mx-auto max-w-5xl px-6 pt-12 pb-8 flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-0 sm:justify-between"
-      >
+      <div className="mx-auto max-w-5xl px-6 pt-12 pb-8 flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-0 sm:justify-between">
         {/* Left: Name + tagline */}
         <div>
           <p
@@ -86,19 +99,20 @@ const Footer: React.FC = () => {
               key={path}
               to={path}
               className="group flex items-center gap-3 py-4 pr-8 transition-colors duration-150"
-              style={{ color: pathname === path ? "#fff" : "rgba(255,255,255,0.3)" }}
+              style={{
+                color: pathname === path ? "#fff" : "rgba(255,255,255,0.3)",
+              }}
             >
               <span
                 className="font-mono text-[10px] shrink-0 transition-colors duration-150"
                 style={{
-                  color: pathname === path ? "#34d399" : "rgba(255,255,255,0.12)",
+                  color:
+                    pathname === path ? "#34d399" : "rgba(255,255,255,0.12)",
                 }}
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span
-                className="text-sm font-medium group-hover:text-white transition-colors duration-150"
-              >
+              <span className="text-sm font-medium group-hover:text-white transition-colors duration-150">
                 {label}
               </span>
               {i < NAV_LINKS.length - 1 && (
@@ -165,7 +179,12 @@ const Footer: React.FC = () => {
                 {inner}
               </a>
             ) : (
-              <Link key={name} to={url} title={name} style={{ display: "inline-block" }}>
+              <Link
+                key={name}
+                to={url}
+                title={name}
+                style={{ display: "inline-block" }}
+              >
                 {inner}
               </Link>
             );
@@ -178,17 +197,25 @@ const Footer: React.FC = () => {
             className="text-xs font-mono"
             style={{ color: "rgba(255,255,255,0.2)" }}
           >
-            © {year} bastian-js
+            {year} © bastian-js
           </p>
-          <span style={{ color: "rgba(255,255,255,0.08)", fontSize: "10px" }}>|</span>
+          <span style={{ color: "rgba(255,255,255,0.08)", fontSize: "10px" }}>
+            |
+          </span>
           {LEGAL_LINKS.map(({ label, path }) => (
             <Link
               key={path}
               to={path}
               className="text-xs transition-colors duration-150"
               style={{ color: "rgba(255,255,255,0.2)" }}
-              onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.5)")}
-              onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.2)")}
+              onMouseEnter={(e) =>
+                ((e.target as HTMLElement).style.color =
+                  "rgba(255,255,255,0.5)")
+              }
+              onMouseLeave={(e) =>
+                ((e.target as HTMLElement).style.color =
+                  "rgba(255,255,255,0.2)")
+              }
             >
               {label}
             </Link>
