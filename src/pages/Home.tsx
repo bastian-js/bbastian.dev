@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Code2, Terminal, Bot, Globe, Type, Music, Laptop } from "lucide-react";
+import { ArrowUpRight, Code2, Terminal, Bot, Globe, Type, Music, Laptop, MessageSquarePlus } from "lucide-react";
 import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
@@ -149,6 +149,34 @@ function Home() {
       </div>
 
       <TechnologiesGrid items={technologiesGridItems} />
+
+      {/* Leave a Word */}
+      <div className="w-full bg-[#0a0a0a] pt-16 pb-0 px-4">
+        <FadeIn className="max-w-6xl mx-auto">
+          <Link
+            to="/leave-a-word"
+            className="group relative overflow-hidden flex items-center justify-between gap-4 rounded-2xl px-6 py-5 transition-colors duration-200"
+            style={{ background: "#111", border: "1px solid rgba(255,255,255,0.07)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.14)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)")}
+          >
+            <div className="pointer-events-none absolute -top-8 -left-8 h-24 w-24 rounded-full bg-white/3 blur-2xl" />
+            <div className="flex items-center gap-4 relative">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}>
+                <MessageSquarePlus className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-white leading-tight">Leave a Word</p>
+                <p className="text-xs text-gray-600 mt-0.5">Drop any word you want — visible to everyone.</p>
+              </div>
+            </div>
+            <span className="text-xs font-medium text-gray-600 group-hover:text-white transition-colors duration-150 shrink-0 relative">
+              Leave one →
+            </span>
+          </Link>
+        </FadeIn>
+      </div>
 
       {/* Setup */}
       <div className="w-full bg-[#0a0a0a] py-16 px-4">

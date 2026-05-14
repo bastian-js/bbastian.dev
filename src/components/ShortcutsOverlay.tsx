@@ -11,6 +11,7 @@ const ITEMS: Array<Section | Shortcut> = [
   { type: "shortcut", key: "A", action: "About" },
   { type: "shortcut", key: "C", action: "Contact" },
   { type: "shortcut", key: "N", action: "Now" },
+  { type: "shortcut", key: "L", action: "Leave a Word" },
   { type: "shortcut", key: "G", action: "Open GitHub" },
   { type: "section", label: "Easter Eggs" },
   { type: "shortcut", key: "m i n e", action: "Launch Minesweeper" },

@@ -5,7 +5,10 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import nodemailer from "nodemailer";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import { db } from "./db.js";
+
+import bannedWords from "./bad-words.json" with { type: "json" };
 
 dotenv.config();
 
@@ -56,8 +59,20 @@ app.use(
         return callback(null, true);
       callback(new Error("Not allowed by CORS"), false);
     },
+    credentials: true,
   }),
 );
+
+function parseCookies(req) {
+  const header = req.headers.cookie || "";
+  return Object.fromEntries(
+    header
+      .split(";")
+      .map((c) => c.trim().split("="))
+      .filter(([k]) => k)
+      .map(([k, ...v]) => [k.trim(), decodeURIComponent(v.join("="))]),
+  );
+}
 app.use(express.json());
 
 /**
@@ -385,7 +400,9 @@ app.get("/spotify/artist-hall-of-fame", async (req, res) => {
     if (response.status > 400) {
       const errBody = await response.text();
       console.error("Spotify Artist HoF status:", response.status, errBody);
-      return res.status(502).json({ error: "Spotify API error", status: response.status });
+      return res
+        .status(502)
+        .json({ error: "Spotify API error", status: response.status });
     }
 
     const data = await response.json();
@@ -403,7 +420,9 @@ app.get("/spotify/artist-hall-of-fame", async (req, res) => {
     return res.json({ artists });
   } catch (error) {
     console.error("Spotify Artist HoF Error:", error);
-    return res.status(500).json({ error: "Failed to fetch artist hall of fame" });
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch artist hall of fame" });
   }
 });
 
@@ -649,7 +668,11 @@ const leaderboardLimiter = rateLimit({
     res.status(429).json({ error: "Too many submissions. Try again later." }),
 });
 
-const nameSchema = z.string().min(1).max(20).regex(/^[^\s].*/, "Name can't start with a space");
+const nameSchema = z
+  .string()
+  .min(1)
+  .max(20)
+  .regex(/^[^\s].*/, "Name can't start with a space");
 
 /**
  * GET /leaderboard/minesweeper?difficulty=beginner
@@ -684,7 +707,12 @@ app.get("/leaderboard/minesweeper", async (req, res) => {
 app.post("/leaderboard/minesweeper", leaderboardLimiter, async (req, res) => {
   try {
     const name = nameSchema.parse((req.body.name ?? "").trim());
-    const time_secs = z.number().int().min(1).max(9999).parse(Number(req.body.time_secs));
+    const time_secs = z
+      .number()
+      .int()
+      .min(1)
+      .max(9999)
+      .parse(Number(req.body.time_secs));
     const difficulty = z
       .enum(["beginner", "intermediate", "expert"])
       .parse(req.body.difficulty);
@@ -728,17 +756,211 @@ app.get("/leaderboard/snake", async (req, res) => {
 app.post("/leaderboard/snake", leaderboardLimiter, async (req, res) => {
   try {
     const name = nameSchema.parse((req.body.name ?? "").trim());
-    const score = z.number().int().min(10).max(99999).parse(Number(req.body.score));
+    const score = z
+      .number()
+      .int()
+      .min(10)
+      .max(99999)
+      .parse(Number(req.body.score));
 
-    await db.execute(
-      `INSERT INTO snake_scores (name, score) VALUES (?, ?)`,
-      [name, score],
-    );
+    await db.execute(`INSERT INTO snake_scores (name, score) VALUES (?, ?)`, [
+      name,
+      score,
+    ]);
     res.json({ success: true });
   } catch (err) {
     if (err instanceof z.ZodError)
       return res.status(400).json({ error: "Invalid input" });
     console.error("Snake leaderboard POST error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+function normalizeWord(input) {
+  return (
+    String(input)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+
+      // deutsche Zeichen
+      .replace(/ä/g, "ae")
+      .replace(/ö/g, "oe")
+      .replace(/ü/g, "ue")
+      .replace(/ß/g, "ss")
+
+      // Leetspeak / Sonderzeichen ersetzen
+      .replace(/[@]/g, "a")
+      .replace(/[4]/g, "a")
+      .replace(/[8]/g, "b")
+      .replace(/[3]/g, "e")
+      .replace(/[1!|]/g, "i")
+      .replace(/[0]/g, "o")
+      .replace(/[5$]/g, "s")
+      .replace(/[7]/g, "t")
+      .replace(/[+]/g, "t")
+
+      // alles entfernen außer Buchstaben und Zahlen
+      // dadurch wird aus "f u c k" => "fuck"
+      // und aus "a-s-s" => "ass"
+      .replace(/[^a-z0-9]/g, "")
+
+      .trim()
+  );
+}
+
+const normalizeBadWords = [
+  ...new Set(
+    bannedWords.words.map((word) => normalizeWord(word)).filter(Boolean),
+  ),
+];
+
+function isBannedWord(input) {
+  const normalizedInput = normalizeWord(input);
+
+  return normalizeBadWords.includes(normalizedInput);
+}
+
+function validateSubmittedWord(input) {
+  const originalWord = String(input).trim();
+  const normalizedWord = normalizeWord(originalWord);
+
+  if (!originalWord) {
+    return {
+      valid: false,
+      reason: "Please input a value.",
+    };
+  }
+
+  if (originalWord.length < 2) {
+    return {
+      valid: false,
+      reason: "The word is too short.",
+    };
+  }
+
+  if (originalWord.length > 51) {
+    return {
+      valid: false,
+      reason: "The word is too long.",
+    };
+  }
+
+  if (isBannedWord(originalWord)) {
+    return {
+      valid: false,
+      reason: "The word is banned.",
+    };
+  }
+
+  return {
+    valid: true,
+    word: originalWord,
+    normalizedWord,
+  };
+}
+
+const leaveAWordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => {
+    const cookies = parseCookies(req);
+    return cookies.visitor_id || req.ip;
+  },
+  handler: (_req, res) =>
+    res.status(429).json({ error: "Too many submissions. Try again later." }),
+});
+
+const leaveAWordNameSchema = z
+  .string()
+  .min(2, "Name must be at least 2 characters.")
+  .max(50, "Name is too long.")
+  .regex(/^\S.*\S$|^\S$/, "Name can't start or end with a space.");
+
+app.post("/leave-a-word", leaveAWordLimiter, async (req, res) => {
+  const cookies = parseCookies(req);
+  let visitorId = cookies.visitor_id;
+  if (!visitorId) {
+    visitorId = randomUUID();
+    res.cookie("visitor_id", visitorId, {
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
+
+  const { name, message } = req.body;
+
+  if (!name || !message) {
+    return res
+      .status(400)
+      .json({ success: false, message: "name and message are required." });
+  }
+
+  try {
+    const validatedName = leaveAWordNameSchema.parse(String(name).trim());
+
+    if (isBannedWord(validatedName)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "That name is not allowed." });
+    }
+
+    const validation = validateSubmittedWord(message);
+
+    if (!validation.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validation.reason });
+    }
+
+    await db.execute(`INSERT INTO leave_a_word (name, word) VALUES (?, ?)`, [
+      validatedName,
+      validation.word,
+    ]);
+
+    return res
+      .status(201)
+      .json({ success: true, message: "word saved successfully." });
+  } catch (err) {
+    if (err instanceof z.ZodError)
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: err.errors[0]?.message || "Invalid input.",
+        });
+    console.error("Leave a Word POST error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+app.get("/leave-a-word/all", async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(String(req.query.page)) || 1);
+    const sortDir = req.query.sort === "oldest" ? "ASC" : "DESC";
+    const limit = 50;
+    const offset = (page - 1) * limit;
+
+    const [[{ total }]] = await db.execute(
+      `SELECT COUNT(*) AS total FROM leave_a_word`,
+    );
+
+    const [rows] = await db.execute(
+      `SELECT lawId, name, word, created_at FROM leave_a_word ORDER BY created_at ${sortDir} LIMIT ? OFFSET ?`,
+      [limit, offset],
+    );
+
+    return res.status(200).json({
+      success: true,
+      words: rows,
+      total: Number(total),
+      page,
+      pages: Math.ceil(Number(total) / limit),
+    });
+  } catch (err) {
+    console.error("leave a word GET error:", err);
     res.status(500).json({ error: "internal server error" });
   }
 });

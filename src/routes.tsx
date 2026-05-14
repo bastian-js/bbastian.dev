@@ -23,6 +23,7 @@ import SpotifyStats from "./pages/spotify/Stats";
 
 // Apps
 import PiggyTrack from "./pages/PiggyTrack";
+import LeaveAWord from "./pages/LeaveAWord";
 
 const routes = [
   { path: "/", element: <Home /> },
@@ -48,6 +49,7 @@ const routes = [
 
   // Apps
   { path: "/piggytrack", element: <PiggyTrack /> },
+  { path: "/leave-a-word", element: <LeaveAWord /> },
   { path: "/dropnote", element: <DropNote /> },
   { path: "/properform", element: <ProPerform /> },
 ];
