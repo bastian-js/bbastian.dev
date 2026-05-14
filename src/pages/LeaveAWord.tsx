@@ -253,7 +253,7 @@ export default function LeaveAWord() {
                   <button
                     type="submit"
                     disabled={submitting || !name.trim() || !word.trim()}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{
                       background: "#34d39918",
                       color: "#34d399",
@@ -294,7 +294,7 @@ export default function LeaveAWord() {
               <button
                 key={s}
                 onClick={() => handleSortChange(s)}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-150"
+                className="cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-150"
                 style={{
                   background:
                     sort === s ? "rgba(255,255,255,0.08)" : "transparent",
@@ -348,7 +348,7 @@ export default function LeaveAWord() {
                 <button
                   onClick={() => fetchWords(page + 1, sort)}
                   disabled={loadingMore}
-                  className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 disabled:opacity-40"
+                  className="cursor-pointer px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 disabled:opacity-40"
                   style={{
                     background: "rgba(255,255,255,0.05)",
                     color: "rgba(255,255,255,0.5)",
