@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageSquarePlus, ChevronDown, Clock, ArrowUp } from "lucide-react";
+import { MessageSquarePlus, ChevronDown, ArrowUp } from "lucide-react";
 import FadeIn from "../components/FadeIn";
 
 const API = "https://api.bbastian.dev";
