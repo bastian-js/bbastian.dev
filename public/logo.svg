@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40">
+  <text
+    x="60"
+    y="30"
+    text-anchor="middle"
+    font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="1"
+  >
+    <tspan fill="#34d399">&lt;</tspan><tspan fill="#ffffff">B</tspan><tspan fill="#34d399">/&gt;</tspan>
+  </text>
+</svg>

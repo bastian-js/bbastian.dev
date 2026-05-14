@@ -102,6 +102,27 @@ function getLangColor(name: string) {
 
 const Infobox: React.FC<InfoboxProps> = ({ items }) => {
   const [stats, setStats] = useState<GitHubStats | null>(null);
+  const [clockTime, setClockTime] = useState({ h: 0, m: 0, s: 0, digital: "" });
+
+  useEffect(() => {
+    const update = () => {
+      const vienna = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Vienna" }));
+      const h = vienna.getHours();
+      const m = vienna.getMinutes();
+      const s = vienna.getSeconds();
+      setClockTime({
+        h, m, s,
+        digital: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+      });
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const secondAngle = clockTime.s * 6;
+  const minuteAngle = clockTime.m * 6 + clockTime.s * 0.1;
+  const hourAngle = (clockTime.h % 12) * 30 + clockTime.m * 0.5;
 
   useEffect(() => {
     fetch("https://api.bbastian.dev/github-stats")
@@ -190,6 +211,60 @@ const Infobox: React.FC<InfoboxProps> = ({ items }) => {
                             </span>
                           );
                         })}
+                      </div>
+                    )}
+
+                    {/* Austria Clock */}
+                    {clockTime.digital && (
+                      <div className="flex items-center gap-4 mt-1">
+                        <svg viewBox="0 0 100 100" className="w-24 h-24 shrink-0">
+                          <circle cx="50" cy="50" r="48" fill="#0d0d0d" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" />
+                          {Array.from({ length: 12 }).map((_, i) => {
+                            const angle = (i * 30 - 90) * (Math.PI / 180);
+                            const r1 = i % 3 === 0 ? 37 : 42;
+                            return (
+                              <line
+                                key={i}
+                                x1={50 + r1 * Math.cos(angle)}
+                                y1={50 + r1 * Math.sin(angle)}
+                                x2={50 + 45 * Math.cos(angle)}
+                                y2={50 + 45 * Math.sin(angle)}
+                                stroke={i % 3 === 0 ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
+                                strokeWidth={i % 3 === 0 ? "2.5" : "1.2"}
+                                strokeLinecap="round"
+                              />
+                            );
+                          })}
+                          {/* Hour hand */}
+                          <line
+                            x1="50" y1="50"
+                            x2={50 + 22 * Math.sin(hourAngle * Math.PI / 180)}
+                            y2={50 - 22 * Math.cos(hourAngle * Math.PI / 180)}
+                            stroke="white" strokeWidth="4" strokeLinecap="round"
+                          />
+                          {/* Minute hand */}
+                          <line
+                            x1="50" y1="50"
+                            x2={50 + 32 * Math.sin(minuteAngle * Math.PI / 180)}
+                            y2={50 - 32 * Math.cos(minuteAngle * Math.PI / 180)}
+                            stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round"
+                          />
+                          {/* Second hand */}
+                          <line
+                            x1={50 - 8 * Math.sin(secondAngle * Math.PI / 180)}
+                            y1={50 + 8 * Math.cos(secondAngle * Math.PI / 180)}
+                            x2={50 + 37 * Math.sin(secondAngle * Math.PI / 180)}
+                            y2={50 - 37 * Math.cos(secondAngle * Math.PI / 180)}
+                            stroke="#10b981" strokeWidth="1.5" strokeLinecap="round"
+                          />
+                          <circle cx="50" cy="50" r="3" fill="white" />
+                        </svg>
+                        <div className="flex flex-col">
+                          <span className="text-2xl font-mono font-semibold text-white tracking-tight leading-none">
+                            {clockTime.digital}
+                          </span>
+                          <span className="text-xs text-gray-600 mt-1">Austria · Europe/Vienna</span>
+                        </div>
                       </div>
                     )}
                   </div>
