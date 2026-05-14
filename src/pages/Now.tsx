@@ -1,4 +1,11 @@
-import { MapPin, Code2, BookOpen, Zap, Calendar, Headphones } from "lucide-react";
+import {
+  MapPin,
+  Code2,
+  BookOpen,
+  Zap,
+  Calendar,
+  Headphones,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 // ── Edit this object to update the /now page ──────────────────────────────────
@@ -15,11 +22,11 @@ const NOW = {
 
   learning: [
     "Expo & React Native deeper patterns",
-    "Backend architecture with .NET & EF Core",
+    "Backend architecture with Node.js, Express and MariaDB",
     "UI/UX design principles",
   ],
 
-  listening: "A lot of rap & phonk while coding, some lo-fi when focusing",
+  listening: "Mostly german rap like OG Keemo, reezy or Ufo361",
 
   location: "Austria",
 
@@ -27,10 +34,7 @@ const NOW = {
 
   mood: "Building things that matter",
 
-  notNow: [
-    "Not job hunting — still in school",
-    "Not taking freelance projects right now",
-  ],
+  notNow: ["Not job hunting — still in school"],
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -45,7 +49,9 @@ export default function Now() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Live
             </span>
-            <span className="text-xs text-gray-600">Updated {NOW.lastUpdated}</span>
+            <span className="text-xs text-gray-600">
+              Updated {NOW.lastUpdated}
+            </span>
           </div>
           <h1 className="text-4xl font-bold text-white mb-3">/now</h1>
           <p className="text-gray-500 text-sm leading-relaxed">
@@ -78,7 +84,10 @@ export default function Now() {
         <Section icon={<BookOpen className="w-4 h-4" />} label="Learning">
           <ul className="space-y-2">
             {NOW.learning.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-sm text-gray-400">
+              <li
+                key={item}
+                className="flex items-start gap-2 text-sm text-gray-400"
+              >
                 <span className="text-emerald-400 mt-0.5 shrink-0">›</span>
                 {item}
               </li>
@@ -87,7 +96,9 @@ export default function Now() {
         </Section>
 
         <Section icon={<Headphones className="w-4 h-4" />} label="Listening to">
-          <p className="text-gray-400 text-sm leading-relaxed">{NOW.listening}</p>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            {NOW.listening}
+          </p>
         </Section>
 
         <Section icon={<Zap className="w-4 h-4" />} label="Status">
@@ -102,7 +113,10 @@ export default function Now() {
         <Section icon={<Calendar className="w-4 h-4" />} label="Not right now">
           <ul className="space-y-2">
             {NOW.notNow.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-sm text-gray-500">
+              <li
+                key={item}
+                className="flex items-start gap-2 text-sm text-gray-500"
+              >
                 <span className="text-gray-600 mt-0.5 shrink-0">×</span>
                 {item}
               </li>
@@ -114,7 +128,15 @@ export default function Now() {
   );
 }
 
-function Section({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+function Section({
+  icon,
+  label,
+  children,
+}: {
+  icon: ReactNode;
+  label: string;
+  children: ReactNode;
+}) {
   return (
     <div className="mb-7 pb-7 border-b border-white/5 last:border-0 last:pb-0 last:mb-0">
       <div className="flex items-center gap-2 mb-3">
