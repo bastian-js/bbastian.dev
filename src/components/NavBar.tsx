@@ -90,13 +90,6 @@ function NavBar({ onOpenShortcuts, onOpenSearch }: NavBarProps) {
     }
   }, [spotifyData.status, showSpotify]);
 
-  const getStatusColor = () =>
-    spotifyData.status === "playing"
-      ? "bg-green-500"
-      : spotifyData.status === "idle"
-        ? "bg-yellow-500"
-        : "bg-red-500";
-
   const getStatusText = () =>
     spotifyData.status === "playing"
       ? "Now Playing"
