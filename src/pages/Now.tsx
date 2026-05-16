@@ -14,9 +14,9 @@ const NOW = {
 
   building: [
     {
-      name: "Noury",
+      name: "DropNote",
       description:
-        "AI calorie tracking app — currently focused on the backend architecture and mobile UI with Expo.",
+        "Notes & Todos app. Right in the menubar. Building with SwiftUI.",
     },
   ],
 
