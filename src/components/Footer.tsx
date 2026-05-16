@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: "Contact", path: "/contact" },
   { label: "Now", path: "/now" },
   { label: "Setup", path: "/setup" },
+  { label: "Leave a Word", path: "/leave-a-word" },
 ];
 
 const LEGAL_LINKS = [

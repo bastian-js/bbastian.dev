@@ -136,6 +136,7 @@ function App() {
         case "a": navigate("/about"); break;
         case "c": navigate("/contact"); break;
         case "n": navigate("/now"); break;
+        case "l": navigate("/leave-a-word"); break;
         case "g": window.open("https://github.com/bastian-js", "_blank"); break;
       }
     };
