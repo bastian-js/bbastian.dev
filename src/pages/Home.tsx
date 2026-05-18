@@ -4,6 +4,7 @@ import Infobox from "../components/Infobox";
 import TechnologiesGrid from "../components/TechnologiesGrid";
 import VerticalTimeline from "../components/VerticalTimeline";
 import FadeIn from "../components/FadeIn";
+import VisitorCounter from "../components/VisitorCounter";
 
 interface TimelineItem {
   year: string;
@@ -149,6 +150,8 @@ function Home() {
       </div>
 
       <TechnologiesGrid items={technologiesGridItems} />
+
+      <VisitorCounter />
 
       {/* Leave a Word */}
       <div className="w-full bg-[#0a0a0a] pt-16 pb-0 px-4">

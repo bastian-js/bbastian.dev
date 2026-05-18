@@ -965,6 +965,66 @@ app.get("/leave-a-word/all", async (req, res) => {
   }
 });
 
+/* ── Visitor Counter ─────────────────────────────────────────────────────────
+ * Required table:
+ * CREATE TABLE visitors (
+ *   id         INT AUTO_INCREMENT PRIMARY KEY,
+ *   visitor_id VARCHAR(36) NOT NULL UNIQUE,
+ *   first_seen DATETIME    NOT NULL DEFAULT NOW()
+ * );
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * POST /visitors/ping
+ * Records a unique visitor (deduped by visitor_id cookie) and returns total count.
+ */
+app.post("/visitors/ping", async (req, res) => {
+  const cookies = parseCookies(req);
+  let visitorId = cookies.visitor_id;
+
+  if (!visitorId) {
+    visitorId = randomUUID();
+    res.cookie("visitor_id", visitorId, {
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
+
+  try {
+    await db.execute(
+      `INSERT IGNORE INTO visitors (visitor_id) VALUES (?)`,
+      [visitorId],
+    );
+
+    const [[{ count }]] = await db.execute(
+      `SELECT COUNT(*) AS count FROM visitors`,
+    );
+
+    res.json({ count: Number(count) });
+  } catch (err) {
+    console.error("Visitors ping error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
+/**
+ * GET /visitors/count
+ * Returns the total unique visitor count.
+ */
+app.get("/visitors/count", async (req, res) => {
+  try {
+    const [[{ count }]] = await db.execute(
+      `SELECT COUNT(*) AS count FROM visitors`,
+    );
+    res.json({ count: Number(count) });
+  } catch (err) {
+    console.error("Visitors count error:", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server läuft auf Port ${process.env.PORT}`);
 });
