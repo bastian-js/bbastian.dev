@@ -95,6 +95,7 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
     new Array(items.length).fill(false)
   );
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mobileItemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Group items into pairs
   const pairs: [TimelineItem, TimelineItem | null][] = [];
@@ -103,7 +104,8 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
   }
 
   useEffect(() => {
-    const observers = rowRefs.current.map((ref, rowIdx) => {
+    // Desktop: observe pair rows
+    const desktopObservers = rowRefs.current.map((ref, rowIdx) => {
       if (!ref) return null;
       const observer = new IntersectionObserver(
         ([entry]) => {
@@ -123,7 +125,31 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
       observer.observe(ref);
       return observer;
     });
-    return () => observers.forEach((o) => o?.disconnect());
+
+    // Mobile: observe each item individually
+    const mobileObservers = mobileItemRefs.current.map((ref, i) => {
+      if (!ref) return null;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleItems((prev) => {
+              if (prev[i]) return prev;
+              const next = [...prev];
+              next[i] = true;
+              return next;
+            });
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(ref);
+      return observer;
+    });
+
+    return () => {
+      desktopObservers.forEach((o) => o?.disconnect());
+      mobileObservers.forEach((o) => o?.disconnect());
+    };
   }, [items.length]);
 
   // gap-16 = 64px. Centers of each column:
@@ -257,6 +283,7 @@ const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ items }) => {
               return (
                 <div
                   key={i}
+                  ref={(el) => { mobileItemRefs.current[i] = el; }}
                   className="relative"
                   style={{
                     opacity: visibleItems[i] ? 1 : 0,

@@ -448,7 +448,7 @@ const ProjectRow: React.FC<{
 
         {/* Right: actions */}
         <div
-          className="shrink-0 flex items-center gap-2 pr-2 sm:pr-4"
+          className="hidden sm:flex shrink-0 items-center gap-2 pr-2 sm:pr-4"
           style={{
             opacity: hovered ? 1 : 0,
             transform: hovered ? "translateX(0)" : "translateX(8px)",
@@ -505,7 +505,7 @@ const ProjectRow: React.FC<{
         {/* Arrow indicator for mobile */}
         <div
           className="shrink-0 sm:hidden pr-3"
-          style={{ color: hovered ? color : "rgba(255,255,255,0.15)", transition: "color 0.25s ease" }}
+          style={{ color: "rgba(255,255,255,0.3)", transition: "color 0.25s ease" }}
         >
           <ArrowUpRight className="w-4 h-4" />
         </div>

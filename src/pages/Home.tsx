@@ -113,23 +113,27 @@ function Home() {
       <Link to="/noury" className="block mx-auto max-w-6xl px-4 pt-6 group">
         <div className="relative overflow-hidden rounded-2xl border border-emerald-300/25 bg-linear-to-br from-[#111f1a] via-[#101010] to-[#0c1310] px-5 py-4 transition-colors duration-200 group-hover:border-emerald-300/50">
           <div className="pointer-events-none absolute -top-10 -right-8 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="relative flex items-center gap-4 flex-wrap">
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/15 px-3 py-0.5 text-xs font-bold tracking-[0.18em] text-emerald-100 uppercase shadow-[0_0_16px_rgba(52,211,153,0.2)] shrink-0">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-              Coming Soon
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-black text-white">Noury</span>
-              <span className="text-sm text-emerald-300 font-medium">
-                /ˈnuː.ri/
+          <div className="relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/15 px-3 py-0.5 text-xs font-bold tracking-[0.18em] text-emerald-100 uppercase shadow-[0_0_16px_rgba(52,211,153,0.2)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                Coming Soon
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-black text-white">Noury</span>
+                <span className="text-sm text-emerald-300 font-medium">
+                  /ˈnuː.ri/
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 sm:flex-1 min-w-0">
+              <p className="text-sm text-gray-400 min-w-0">
+                AI calorie tracking — log meals by photo or manually.
+              </p>
+              <span className="text-xs text-emerald-300 font-semibold group-hover:underline shrink-0">
+                Learn more →
               </span>
             </div>
-            <p className="text-sm text-gray-400 flex-1 min-w-0">
-              AI calorie tracking — log meals by photo or manually.
-            </p>
-            <span className="text-xs text-emerald-300 font-semibold group-hover:underline shrink-0">
-              Learn more →
-            </span>
           </div>
         </div>
       </Link>
