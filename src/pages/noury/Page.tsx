@@ -137,6 +137,20 @@ function Noury() {
                 </span>
               ))}
             </div>
+
+            <div className="mt-6">
+              <a
+                href="https://noury.bbastian.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-sm font-bold text-black transition-colors duration-150"
+              >
+                Visit noury.bbastian.dev
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -192,7 +206,7 @@ function Noury() {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-black transition-colors duration-150 shrink-0"
+                  className="cursor-pointer rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-black transition-colors duration-150 shrink-0"
                 >
                   {status === "loading" ? "Joining…" : "Join Waitlist"}
                 </button>
