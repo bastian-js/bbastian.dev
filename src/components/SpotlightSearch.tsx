@@ -103,7 +103,7 @@ export default function SpotlightSearch({ onClose }: Props) {
               <X className="w-4 h-4" />
             </button>
           ) : (
-            <kbd className="text-xs bg-[#1a1a1a] border border-white/10 text-gray-600 px-1.5 py-0.5 rounded font-mono shrink-0">
+            <kbd className="hidden sm:inline text-xs bg-[#1a1a1a] border border-white/10 text-gray-600 px-1.5 py-0.5 rounded font-mono shrink-0">
               Esc
             </kbd>
           )}
@@ -151,7 +151,7 @@ export default function SpotlightSearch({ onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2.5 border-t border-white/5 flex items-center gap-4 text-[10px] text-gray-600 font-mono">
+        <div className="hidden sm:flex px-4 py-2.5 border-t border-white/5 items-center gap-4 text-[10px] text-gray-600 font-mono">
           <span>↑↓ navigate</span>
           <span>↵ open</span>
           <span>esc close</span>

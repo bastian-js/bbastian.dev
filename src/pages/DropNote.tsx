@@ -46,7 +46,7 @@ export default function DropNote() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style={{ background: BLUE }} />
                   <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: BLUE }} />
                 </span>
-                Available Now
+                Now on App Store
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">
                 Swift · SwiftUI · macOS
@@ -79,33 +79,61 @@ export default function DropNote() {
         </div>
 
         {/* Download CTA */}
-        <a
-          href="https://dropnote.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/3 px-6 py-5 hover:border-white/15 hover:bg-white/5 transition-all duration-150 group"
-        >
-          <div>
-            <p className="text-sm font-semibold text-white">Available on macOS</p>
-            <p className="mt-0.5 text-xs text-gray-500">Download for free at dropnote.dev</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div
-              className="inline-flex items-center gap-3 rounded-xl border px-5 py-3"
-              style={{ background: `${BLUE}18`, borderColor: `${BLUE}40` }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={BLUE} strokeWidth={1.6}>
-                <rect x="2" y="3" width="20" height="14" rx="2" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 21h8M12 17v4" />
-              </svg>
-              <div className="text-left leading-tight">
-                <p className="text-[10px] font-medium tracking-wide" style={{ color: `${BLUE}99` }}>Download for</p>
-                <p className="text-[15px] font-bold text-white tracking-tight">macOS</p>
-              </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a
+            href="https://apps.apple.com/app/dropnote-quick-notes/id6761221463?mt=12"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/3 px-6 py-5 hover:border-white/15 hover:bg-white/5 transition-all duration-150 group"
+          >
+            <div>
+              <p className="text-sm font-semibold text-white">Mac App Store</p>
+              <p className="mt-0.5 text-xs text-gray-500">Download on the App Store</p>
             </div>
-            <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
-          </div>
-        </a>
+            <div className="flex items-center gap-3">
+              <div
+                className="inline-flex items-center gap-3 rounded-xl border px-5 py-3"
+                style={{ background: `${BLUE}18`, borderColor: `${BLUE}40` }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 384 512" fill={BLUE}>
+                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                </svg>
+                <div className="text-left leading-tight">
+                  <p className="text-[10px] font-medium tracking-wide" style={{ color: `${BLUE}99` }}>Download on the</p>
+                  <p className="text-[15px] font-bold text-white tracking-tight">App Store</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
+            </div>
+          </a>
+          <a
+            href="https://dropnote.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/3 px-6 py-5 hover:border-white/15 hover:bg-white/5 transition-all duration-150 group"
+          >
+            <div>
+              <p className="text-sm font-semibold text-white">Website</p>
+              <p className="mt-0.5 text-xs text-gray-500">dropnote.dev</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div
+                className="inline-flex items-center gap-3 rounded-xl border px-5 py-3"
+                style={{ background: `${BLUE}18`, borderColor: `${BLUE}40` }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={BLUE} strokeWidth={1.6}>
+                  <rect x="2" y="3" width="20" height="14" rx="2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 21h8M12 17v4" />
+                </svg>
+                <div className="text-left leading-tight">
+                  <p className="text-[10px] font-medium tracking-wide" style={{ color: `${BLUE}99` }}>Visit</p>
+                  <p className="text-[15px] font-bold text-white tracking-tight">Website</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
+            </div>
+          </a>
+        </div>
 
         {/* Features */}
         <div className="grid gap-3 md:grid-cols-2">
