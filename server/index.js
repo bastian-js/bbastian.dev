@@ -13,7 +13,12 @@ import bannedWords from "./bad-words.json" with { type: "json" };
 dotenv.config();
 
 const app = express();
-const allowedOrigins = ["http://localhost:3030", "http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:3030",
+  "http://localhost:5173",
+  "https://bbastian.dev",
+  "https://noury.bbastian.dev",
+];
 
 /* Spotify credentials (needed before CORS for auth routes) */
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -925,12 +930,10 @@ app.post("/leave-a-word", leaveAWordLimiter, async (req, res) => {
       .json({ success: true, message: "word saved successfully." });
   } catch (err) {
     if (err instanceof z.ZodError)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: err.errors[0]?.message || "Invalid input.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: err.errors[0]?.message || "Invalid input.",
+      });
     console.error("Leave a Word POST error:", err);
     res.status(500).json({ error: "internal server error" });
   }
@@ -993,10 +996,9 @@ app.post("/visitors/ping", async (req, res) => {
   }
 
   try {
-    await db.execute(
-      `INSERT IGNORE INTO visitors (visitor_id) VALUES (?)`,
-      [visitorId],
-    );
+    await db.execute(`INSERT IGNORE INTO visitors (visitor_id) VALUES (?)`, [
+      visitorId,
+    ]);
 
     const [[{ count }]] = await db.execute(
       `SELECT COUNT(*) AS count FROM visitors`,

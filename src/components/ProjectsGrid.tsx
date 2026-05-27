@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { ArrowUpRight, Github, X, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import {
+  ArrowUpRight,
+  Github,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+} from "lucide-react";
 import MagneticWrapper from "./MagneticWrapper";
 
 export interface Project {
@@ -86,9 +93,12 @@ const DetailOverlay: React.FC<{
           borderRadius: "24px 24px 0 0",
           maxHeight: "92dvh",
           overflowY: "auto",
-          transform: mounted ? "translateY(0) scale(1)" : "translateY(60px) scale(0.97)",
+          transform: mounted
+            ? "translateY(0) scale(1)"
+            : "translateY(60px) scale(0.97)",
           opacity: mounted ? 1 : 0,
-          transition: "transform 0.42s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease",
+          transition:
+            "transform 0.42s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease",
           boxShadow: `0 -2px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04), 0 -1px 0 0 ${color}`,
         }}
       >
@@ -119,7 +129,7 @@ const DetailOverlay: React.FC<{
           <div className="flex items-start justify-between gap-4 mb-6">
             <div className="flex flex-col gap-2">
               <span
-                className="text-[10px] font-black tracking-[0.2em] uppercase"
+                className="text-left text-[10px] font-black tracking-[0.2em] uppercase"
                 style={{ color, opacity: 0.7 }}
               >
                 {num}
@@ -132,9 +142,7 @@ const DetailOverlay: React.FC<{
                   {badge}
                 </span>
               )}
-              <h2
-                className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-[1.05]"
-              >
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-[1.05]">
                 {title}
               </h2>
             </div>
@@ -149,11 +157,14 @@ const DetailOverlay: React.FC<{
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLButtonElement).style.color = "white";
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)";
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    "rgba(255,255,255,0.1)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.5)";
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
+                  (e.currentTarget as HTMLButtonElement).style.color =
+                    "rgba(255,255,255,0.5)";
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    "rgba(255,255,255,0.06)";
                 }}
               >
                 <X className="w-4 h-4" />
@@ -180,16 +191,26 @@ const DetailOverlay: React.FC<{
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={() => setImgIndex((p) => (p - 1 + images.length) % images.length)}
+                    onClick={() =>
+                      setImgIndex(
+                        (p) => (p - 1 + images.length) % images.length,
+                      )
+                    }
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
-                    style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+                    style={{
+                      background: "rgba(0,0,0,0.6)",
+                      backdropFilter: "blur(8px)",
+                    }}
                   >
                     <ChevronLeft className="w-4 h-4 text-white" />
                   </button>
                   <button
                     onClick={() => setImgIndex((p) => (p + 1) % images.length)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
-                    style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+                    style={{
+                      background: "rgba(0,0,0,0.6)",
+                      backdropFilter: "blur(8px)",
+                    }}
                   >
                     <ChevronRight className="w-4 h-4 text-white" />
                   </button>
@@ -202,7 +223,8 @@ const DetailOverlay: React.FC<{
                         style={{
                           width: i === imgIndex ? "16px" : "6px",
                           height: "6px",
-                          background: i === imgIndex ? color : "rgba(255,255,255,0.3)",
+                          background:
+                            i === imgIndex ? color : "rgba(255,255,255,0.3)",
                         }}
                       />
                     ))}
@@ -220,7 +242,7 @@ const DetailOverlay: React.FC<{
           {/* Tech stack */}
           <div className="mb-8">
             <p
-              className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
+              className="text-left text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
               style={{ color: "rgba(255,255,255,0.25)" }}
             >
               Stack
@@ -254,7 +276,10 @@ const DetailOverlay: React.FC<{
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-400 hover:text-white rounded-xl transition-colors duration-150"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                  }}
                 >
                   <Github className="w-4 h-4" />
                   GitHub
@@ -315,7 +340,7 @@ const ProjectRow: React.FC<{
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => e.isIntersecting && setVisible(true),
-      { threshold: 0.08 }
+      { threshold: 0.08 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -339,7 +364,8 @@ const ProjectRow: React.FC<{
         onClick={() => onOpen(index)}
         style={{
           padding: "28px 0",
-          borderBottom: index < total - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+          borderBottom:
+            index < total - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
         }}
       >
         {/* Left accent bar */}
@@ -354,7 +380,8 @@ const ProjectRow: React.FC<{
             borderRadius: "0 2px 2px 0",
             opacity: hovered ? 1 : 0,
             transform: hovered ? "scaleY(1)" : "scaleY(0)",
-            transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)",
+            transition:
+              "opacity 0.25s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)",
             transformOrigin: "center",
             boxShadow: `0 0 12px 2px ${color}60`,
           }}
@@ -452,7 +479,8 @@ const ProjectRow: React.FC<{
           style={{
             opacity: hovered ? 1 : 0,
             transform: hovered ? "translateX(0)" : "translateX(8px)",
-            transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)",
+            transition:
+              "opacity 0.25s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -487,7 +515,10 @@ const ProjectRow: React.FC<{
           {hasDetails && (
             <MagneticWrapper strength={0.4}>
               <button
-                onClick={(e) => { e.stopPropagation(); onOpen(index); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen(index);
+                }}
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer transition-all"
                 style={{
                   background: "rgba(255,255,255,0.07)",
@@ -505,7 +536,10 @@ const ProjectRow: React.FC<{
         {/* Arrow indicator for mobile */}
         <div
           className="shrink-0 sm:hidden pr-3"
-          style={{ color: "rgba(255,255,255,0.3)", transition: "color 0.25s ease" }}
+          style={{
+            color: "rgba(255,255,255,0.3)",
+            transition: "color 0.25s ease",
+          }}
         >
           <ArrowUpRight className="w-4 h-4" />
         </div>

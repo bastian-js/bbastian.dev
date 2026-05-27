@@ -51,6 +51,14 @@ const projects: Project[] = [
     showLiveDemo: false,
   },
   {
+    title: "bbastian.dev",
+    description:
+      "The website you're on right now! Built with React, Vite and Tailwind CSS.",
+    technologies: ["TypeScript", "React", "Vite", "Tailwind CSS"],
+    color: "#3B82F6",
+    githubUrl: "https://github.com/bastian-js/bbastian.dev",
+  },
+  {
     title: "Giveaway Discord Bot",
     description:
       "A lightweight Discord giveaway bot for creating and managing community giveaways, previously used on several servers.",
@@ -388,6 +396,65 @@ function Projects() {
               <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-1" />
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Other / Small Projects */}
+      <div className="max-w-3xl mx-auto mt-24">
+        <div className="flex items-end justify-between gap-4 mb-3">
+          <h2
+            className="font-black tracking-tight text-white"
+            style={{ fontSize: "clamp(26px, 5vw, 38px)" }}
+          >
+            Other Projects
+          </h2>
+          <span
+            className="text-xs font-mono mb-1 shrink-0"
+            style={{ color: "rgba(255,255,255,0.2)" }}
+          >
+            01 project
+          </span>
+        </div>
+        <p className="text-sm text-left text-gray-500 leading-relaxed max-w-md mb-8">
+          Smaller tools and side projects I've built and shipped.
+        </p>
+
+        <div className="rounded-2xl border border-white/6 overflow-hidden">
+          {/* Table header */}
+          <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_3fr_auto] gap-4 px-5 py-2.5 border-b border-white/6 bg-white/2">
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-600">Project</span>
+            <span className="hidden sm:block text-[10px] font-bold tracking-[0.18em] uppercase text-gray-600">Description</span>
+            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-600 text-right">Link</span>
+          </div>
+
+          {/* link.bbastian.dev */}
+          <a
+            href="https://link.bbastian.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_3fr_auto] gap-4 items-center px-5 py-4 transition-colors duration-150 hover:bg-white/3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                style={{ background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.2)" }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <span className="text-sm font-bold text-white block truncate">link.bbastian.dev</span>
+                <span className="text-[11px] text-gray-600">TypeScript · Next.js</span>
+              </div>
+            </div>
+            <p className="hidden sm:block text-sm text-gray-500 truncate">
+              URL shortener — manage and share your links in one place.
+            </p>
+            <span className="text-xs font-semibold text-sky-400 group-hover:underline text-right shrink-0">
+              Visit →
+            </span>
+          </a>
         </div>
       </div>
     </div>
