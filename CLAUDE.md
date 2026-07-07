@@ -101,7 +101,9 @@ Base URL `https://api.bbastian.dev`. All routes are defined in `server/index.js`
 CORS allows `bbastian.dev` + any `*.bbastian.dev` subdomain + localhost. Key
 endpoints:
 
-- `GET  /github-stats` — cached GitHub profile/repo/language stats
+- `GET  /github-stats` — GitHub profile/repo/language stats. Wrapped in a
+  10-min in-memory cache (`ghCache`); on GitHub failure it serves stale data
+  instead of 500. (Uncached it fires N+2 GitHub requests — one per repo.)
 - Spotify: `GET /spotify/{auth,exchange,now-playing,top-tracks,hall-of-fame,artist-hall-of-fame}`
 - `POST /contact` (rate-limited) — sends email via Resend/nodemailer, zod-validated
 - `POST /noury/waitlist`, `GET /noury/waitlist/count`
@@ -115,6 +117,13 @@ endpoints:
   (each client gets everyone *except* itself) plus `{type:"leave",id}`. The
   Express `app` is wrapped in an `http.createServer` so `ws` can share the port
   (`server.listen`, upgrade handler filters path `/cursors` + origin).
+
+**Logging:** use `logError(context, err)` / `logInfo(msg)` (top of
+`server/index.js`) — they prefix an ISO timestamp for readable pm2 logs. A
+global Express error middleware (after all routes) + `uncaughtException` /
+`unhandledRejection` handlers catch everything else. The CORS `origin` callback
+denies with `callback(null, false)` (never throws) so origin-less requests
+don't spam error stacks.
 
 **Content filtering:** `normalizeWord()` folds leetspeak, German umlauts,
 spacing and accents down to `[a-z0-9]` before comparing against

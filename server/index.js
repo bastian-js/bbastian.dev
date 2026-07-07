@@ -14,6 +14,23 @@ import bannedWords from "./bad-words.json" with { type: "json" };
 
 dotenv.config();
 
+/* ── Logging helpers (nice output for pm2 logs, with timestamps) ──────── */
+const ts = () => new Date().toISOString();
+function logError(context, err) {
+  const e = err instanceof Error ? err : new Error(String(err));
+  console.error(`[${ts()}] ❌ ${context}: ${e.message}`);
+  if (e.stack) console.error(e.stack);
+}
+function logInfo(msg) {
+  console.log(`[${ts()}] ${msg}`);
+}
+
+// Prozess-weite Fehler landen sonst kryptisch in den pm2-Logs
+process.on("uncaughtException", (err) => logError("uncaughtException", err));
+process.on("unhandledRejection", (reason) =>
+  logError("unhandledRejection", reason),
+);
+
 const app = express();
 const allowedOrigins = [
   "http://localhost:3030",
@@ -60,11 +77,14 @@ app.get("/spotify/auth", (req, res) => {
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(new Error("No origin"), false);
+      // Kein Origin-Header (curl, Health-Checks, Server-zu-Server) → einfach
+      // ohne CORS-Header durchlassen, KEIN Error (sonst spammt es die Logs voll).
+      if (!origin) return callback(null, false);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       if (/^https:\/\/([\w-]+\.)*bbastian\.dev$/.test(origin))
         return callback(null, true);
-      callback(new Error("Not allowed by CORS"), false);
+      console.warn(`[${ts()}] ⚠️  CORS blocked origin: ${origin}`);
+      callback(null, false);
     },
     credentials: true,
   }),
@@ -89,7 +109,15 @@ app.use(express.json());
  * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
+// Kleiner In-Memory-Cache: der Endpoint macht sonst N+2 GitHub-Requests pro
+// Aufruf. TTL 10 Min — die meisten Besucher bekommen die Antwort direkt aus RAM.
+let ghCache = { data: null, ts: 0 };
+const GH_CACHE_MS = 10 * 60 * 1000;
+
 app.get("/github-stats", async (req, res) => {
+  if (ghCache.data && Date.now() - ghCache.ts < GH_CACHE_MS)
+    return res.json(ghCache.data);
+
   try {
     const headers = {
       Authorization: `token ${process.env.GITHUB_TOKEN}`,
@@ -144,14 +172,19 @@ app.get("/github-stats", async (req, res) => {
         .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))[0]
         ?.pushed_at ?? null;
 
-    res.json({
+    const payload = {
       repos: repos.length,
       stars,
       yearsActive,
       languages,
       lastActive,
-    });
+    };
+    ghCache = { data: payload, ts: Date.now() };
+    res.json(payload);
   } catch (err) {
+    logError("GET /github-stats", err);
+    // Bei GitHub-Ausfall lieber die letzten bekannten Daten liefern als 500.
+    if (ghCache.data) return res.json(ghCache.data);
     res.status(500).json({ error: "GitHub API failed" });
   }
 });
@@ -1045,6 +1078,13 @@ app.get("/visitors/count", async (req, res) => {
   }
 });
 
+/* ── Globaler Error-Handler — muss NACH allen Routen stehen ──────────── */
+app.use((err, req, res, _next) => {
+  logError(`${req.method} ${req.originalUrl}`, err);
+  if (res.headersSent) return;
+  res.status(500).json({ error: "internal server error" });
+});
+
 /* ─────────────────────────────────────────────────────────────────────
  *  Live cursors — WebSocket hub at /cursors
  *
@@ -1073,7 +1113,7 @@ const cursorOriginAllowed = (origin) => {
 const server = http.createServer(app);
 const cursorWss = new WebSocketServer({ noServer: true });
 
-// State per connection: id → { x, y, name, color }
+// State per connection: id → { x, y, color }
 const cursors = new Map();
 const cursorSockets = new Map(); // id → ws
 
@@ -1090,6 +1130,9 @@ server.on("upgrade", (req, socket, head) => {
     return;
   }
   if (!cursorOriginAllowed(req.headers.origin)) {
+    console.warn(
+      `[${ts()}] ⚠️  /cursors upgrade rejected — origin: ${req.headers.origin || "(none)"}`,
+    );
     socket.destroy();
     return;
   }
@@ -1112,6 +1155,7 @@ cursorWss.on("connection", (ws) => {
     color: CURSOR_COLORS[(Math.random() * CURSOR_COLORS.length) | 0],
   });
   cursorSockets.set(id, ws);
+  logInfo(`🖱️  cursor connected (${cursorSockets.size} online)`);
 
   ws.on("pong", () => {
     ws.isAlive = true;
@@ -1132,9 +1176,13 @@ cursorWss.on("connection", (ws) => {
     }
   });
 
+  let cleanedUp = false;
   const cleanup = () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
     cursors.delete(id);
     cursorSockets.delete(id);
+    logInfo(`🖱️  cursor disconnected (${cursorSockets.size} online)`);
     const payload = JSON.stringify({ type: "leave", id });
     for (const s of cursorSockets.values())
       if (s.readyState === 1) s.send(payload);
@@ -1174,5 +1222,5 @@ setInterval(() => {
 }, CURSOR_HEARTBEAT_MS);
 
 server.listen(process.env.PORT, () => {
-  console.log(`Server läuft auf Port ${process.env.PORT}`);
+  logInfo(`🚀 Server läuft auf Port ${process.env.PORT}`);
 });
