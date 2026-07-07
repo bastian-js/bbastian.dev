@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  *  TEST = false  → echte Live-Cursor anderer Besucher via WebSocket
  *  TEST_CURSOR_COUNT → wie viele Fake-Cursor rumschweben (0–1000)
  */
-const TEST = true;
+const TEST = false;
 const TEST_CURSOR_COUNT = 5;
 /* ───────────────────────────────────────────────────────────────────── */
 
