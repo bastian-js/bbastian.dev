@@ -110,6 +110,7 @@ function Home() {
 
   return (
     <div className="pt-22">
+      {/* 
       <Link to="/noury" className="block mx-auto max-w-6xl px-4 pt-6 group">
         <div className="relative overflow-hidden rounded-2xl border border-emerald-300/25 bg-linear-to-br from-[#111f1a] via-[#101010] to-[#0c1310] px-5 py-4 transition-colors duration-200 group-hover:border-emerald-300/50">
           <div className="pointer-events-none absolute -top-10 -right-8 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
@@ -137,6 +138,7 @@ function Home() {
           </div>
         </div>
       </Link>
+      */}
 
       <FadeIn>
         <Infobox items={infoboxItems} />

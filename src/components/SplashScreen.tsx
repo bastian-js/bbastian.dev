@@ -41,9 +41,9 @@ export default function SplashScreen() {
 
     // Intentionally no cleanup — timers must survive StrictMode unmount/remount.
     // React 18 safely ignores setState calls on unmounted components.
-    setTimeout(() => setPhase("in"), 60);
-    setTimeout(() => setPhase("splitting"), 1300);
-    setTimeout(() => setPhase("done"), 2250);
+    setTimeout(() => setPhase("in"), 40);
+    setTimeout(() => setPhase("splitting"), 780);
+    setTimeout(() => setPhase("done"), 1380);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (phase === "done") return null;
@@ -109,7 +109,7 @@ export default function SplashScreen() {
               whiteSpace: "pre",
               opacity: animating ? undefined : 0,
               animation: animating
-                ? `_splashCharUp 0.5s cubic-bezier(0.22,1,0.36,1) ${0.22 + i * 0.038}s both`
+                ? `_splashCharUp 0.4s cubic-bezier(0.22,1,0.36,1) ${0.14 + i * 0.022}s both`
                 : "none",
             }}
           >
@@ -128,7 +128,7 @@ export default function SplashScreen() {
           transformOrigin: "center center",
           opacity: animating ? undefined : 0,
           animation: animating
-            ? "_splashLineExpand 0.45s cubic-bezier(0.22,1,0.36,1) 0.82s both"
+            ? "_splashLineExpand 0.36s cubic-bezier(0.22,1,0.36,1) 0.48s both"
             : "none",
         }}
       />
@@ -152,7 +152,7 @@ export default function SplashScreen() {
       ? `translateX(${side === "left" ? "-100%" : "100%"})`
       : "translateX(0)",
     transition: splitting
-      ? "transform 0.9s cubic-bezier(0.87,0,0.13,1)"
+      ? "transform 0.6s cubic-bezier(0.87,0,0.13,1)"
       : "none",
   });
 

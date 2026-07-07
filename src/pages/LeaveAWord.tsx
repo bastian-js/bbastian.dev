@@ -234,14 +234,14 @@ export default function LeaveAWord() {
                     placeholder="Your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    maxLength={50}
+                    maxLength={30}
                     className="flex-1 min-w-0 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-white/20 transition-colors"
                   />
                   <input
                     type="text"
                     placeholder="Your word"
                     value={word}
-                    onChange={(e) => setWord(e.target.value)}
+                    onChange={(e) => setWord(e.target.value.replace(/\s/g, ""))}
                     maxLength={51}
                     className="flex-1 min-w-0 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-white/20 transition-colors"
                   />

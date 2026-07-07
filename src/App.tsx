@@ -10,6 +10,8 @@ import SpotlightSearch from "./components/SpotlightSearch";
 import MatrixRain from "./components/MatrixRain";
 import Snake from "./components/Snake";
 import SplashScreen from "./components/SplashScreen";
+import AnnouncementBanner from "./components/AnnouncementBanner";
+import LiveCursors from "./components/LiveCursors";
 import NotFound from "./pages/NotFound";
 
 const KONAMI = [
@@ -166,6 +168,8 @@ function App() {
       </div>
 
       <SplashScreen />
+      <LiveCursors />
+      <AnnouncementBanner />
       {minesweeper && <Minesweeper onClose={() => setMinesweeper(false)} />}
       {hacker && <HackerTerminal onClose={() => setHacker(false)} />}
       {shortcuts && <ShortcutsOverlay onClose={() => setShortcuts(false)} />}

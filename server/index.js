@@ -6,6 +6,8 @@ import rateLimit from "express-rate-limit";
 import nodemailer from "nodemailer";
 import { z } from "zod";
 import { randomUUID } from "crypto";
+import http from "http";
+import { WebSocketServer } from "ws";
 import { db } from "./db.js";
 
 import bannedWords from "./bad-words.json" with { type: "json" };
@@ -851,6 +853,14 @@ function validateSubmittedWord(input) {
     };
   }
 
+  // Enforce a *single* word — no spaces, tabs or line breaks allowed.
+  if (/\s/.test(originalWord)) {
+    return {
+      valid: false,
+      reason: "Please enter only a single word.",
+    };
+  }
+
   if (isBannedWord(originalWord)) {
     return {
       valid: false,
@@ -879,8 +889,16 @@ const leaveAWordLimiter = rateLimit({
 const leaveAWordNameSchema = z
   .string()
   .min(2, "Name must be at least 2 characters.")
-  .max(50, "Name is too long.")
-  .regex(/^\S.*\S$|^\S$/, "Name can't start or end with a space.");
+  .max(30, "Name is too long.")
+  .regex(/^\S.*\S$|^\S$/, "Name can't start or end with a space.")
+  // No line breaks or tabs — keeps it to a name, not a pasted block of text.
+  .refine((v) => !/[\n\r\t]/.test(v), {
+    message: "Name contains invalid characters.",
+  })
+  // A name, not a sentence: at most 3 whitespace-separated parts.
+  .refine((v) => v.split(/\s+/).filter(Boolean).length <= 3, {
+    message: "Please enter a name, not a sentence.",
+  });
 
 app.post("/leave-a-word", leaveAWordLimiter, async (req, res) => {
   const cookies = parseCookies(req);
@@ -1027,6 +1045,134 @@ app.get("/visitors/count", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
+/* ─────────────────────────────────────────────────────────────────────
+ *  Live cursors — WebSocket hub at /cursors
+ *
+ *  Protocol:
+ *    Client → Server:  { x, y }                     (normalized 0–1)
+ *    Server → Client:  { type: "state", cursors: [{ id, x, y, color }] }
+ *                      { type: "leave", id }
+ *
+ *  The server assigns each connection a random color, so clients only ever
+ *  send their position — the identity comes from here.
+ * ───────────────────────────────────────────────────────────────────── */
+const CURSOR_COLORS = [
+  "#34d399", "#60a5fa", "#f472b6", "#a78bfa", "#fb923c",
+  "#facc15", "#38bdf8", "#4ade80", "#f87171", "#c084fc",
+];
+const CURSOR_MAX_CLIENTS = 200; // abuse guard
+const CURSOR_BROADCAST_MS = 50; // ~20 fps state broadcast
+const CURSOR_HEARTBEAT_MS = 30000;
+
+const cursorOriginAllowed = (origin) => {
+  if (!origin) return false;
+  if (allowedOrigins.includes(origin)) return true;
+  return /^https:\/\/([\w-]+\.)*bbastian\.dev$/.test(origin);
+};
+
+const server = http.createServer(app);
+const cursorWss = new WebSocketServer({ noServer: true });
+
+// State per connection: id → { x, y, name, color }
+const cursors = new Map();
+const cursorSockets = new Map(); // id → ws
+
+server.on("upgrade", (req, socket, head) => {
+  let pathname;
+  try {
+    pathname = new URL(req.url, "http://localhost").pathname;
+  } catch {
+    socket.destroy();
+    return;
+  }
+  if (pathname !== "/cursors") {
+    socket.destroy();
+    return;
+  }
+  if (!cursorOriginAllowed(req.headers.origin)) {
+    socket.destroy();
+    return;
+  }
+  cursorWss.handleUpgrade(req, socket, head, (ws) => {
+    cursorWss.emit("connection", ws, req);
+  });
+});
+
+cursorWss.on("connection", (ws) => {
+  if (cursorSockets.size >= CURSOR_MAX_CLIENTS) {
+    ws.close();
+    return;
+  }
+
+  const id = randomUUID();
+  ws.isAlive = true;
+  cursors.set(id, {
+    x: 0.5,
+    y: 0.5,
+    color: CURSOR_COLORS[(Math.random() * CURSOR_COLORS.length) | 0],
+  });
+  cursorSockets.set(id, ws);
+
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
+  ws.on("message", (buf) => {
+    let msg;
+    try {
+      msg = JSON.parse(buf.toString());
+    } catch {
+      return;
+    }
+    const c = cursors.get(id);
+    if (!c) return;
+    if (typeof msg.x === "number" && typeof msg.y === "number") {
+      c.x = Math.min(1, Math.max(0, msg.x));
+      c.y = Math.min(1, Math.max(0, msg.y));
+    }
+  });
+
+  const cleanup = () => {
+    cursors.delete(id);
+    cursorSockets.delete(id);
+    const payload = JSON.stringify({ type: "leave", id });
+    for (const s of cursorSockets.values())
+      if (s.readyState === 1) s.send(payload);
+  };
+  ws.on("close", cleanup);
+  ws.on("error", cleanup);
+});
+
+// Broadcast everyone's positions — each client gets everyone *except* itself.
+setInterval(() => {
+  if (cursorSockets.size === 0) return;
+  for (const [id, ws] of cursorSockets) {
+    if (ws.readyState !== 1) continue;
+    const others = [];
+    for (const [oid, c] of cursors) {
+      if (oid === id) continue;
+      others.push({ id: oid, x: c.x, y: c.y, color: c.color });
+    }
+    ws.send(JSON.stringify({ type: "state", cursors: others }));
+  }
+}, CURSOR_BROADCAST_MS);
+
+// Drop dead connections
+setInterval(() => {
+  for (const ws of cursorSockets.values()) {
+    if (ws.isAlive === false) {
+      ws.terminate();
+      continue;
+    }
+    ws.isAlive = false;
+    try {
+      ws.ping();
+    } catch {
+      /* ignore */
+    }
+  }
+}, CURSOR_HEARTBEAT_MS);
+
+server.listen(process.env.PORT, () => {
   console.log(`Server läuft auf Port ${process.env.PORT}`);
 });
