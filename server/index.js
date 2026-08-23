@@ -39,10 +39,38 @@ const allowedOrigins = [
   "https://noury.bbastian.dev",
 ];
 
-/* Spotify credentials (needed before CORS for auth routes) */
+/* ── Spotify ──────────────────────────────────────────────────────────────
+ * Refresh-Tokens laufen seit 2026-07-20 nach 6 Monaten ab:
+ * https://developer.spotify.com/blog/2026-06-18-refresh-token-expiration
+ * Ein Access-Token-Refresh verlängert die Frist NICHT — nach 6 Monaten muss
+ * der Owner einmal neu autorisieren. Darum:
+ *   • Refresh-Token liegt in der DB statt nur in .env → Re-Auth braucht
+ *     keinen Deploy und keinen pm2-Restart mehr.
+ *   • Rotation: schickt Spotify beim Refresh ein neues Token mit, wird es
+ *     gespeichert.
+ *   • `invalid_grant` wird erkannt → Token verwerfen, kein Retry-Spam gegen
+ *     den Token-Endpoint, lauter Log-Hinweis mit Re-Auth-Link.
+ *   • Access-Token wird im RAM gecacht (vorher: ein Token-Call pro Request).
+ *   • GET /spotify/status zeigt, wie lange das Token noch gilt.
+ *
+ * Tabelle wird beim Start automatisch angelegt:
+ * CREATE TABLE spotify_auth (
+ *   id            TINYINT     NOT NULL PRIMARY KEY,
+ *   refresh_token TEXT        NOT NULL,
+ *   account_id    VARCHAR(64) NULL,
+ *   obtained_at   DATETIME    NULL,   -- NULL = Ausgabezeitpunkt unbekannt
+ *   updated_at    DATETIME    NOT NULL DEFAULT NOW() ON UPDATE NOW()
+ * );
+ * ──────────────────────────────────────────────────────────────────────── */
+
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+/** Nur noch Bootstrap-Seed: wird in die DB übernommen, falls dort nichts liegt. */
 const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+/** Schützt /spotify/auth + /spotify/exchange — ohne den Key kein Re-Auth. */
+const SPOTIFY_ADMIN_KEY = process.env.SPOTIFY_ADMIN_KEY;
+/** Optional: Spotify-User-ID des Owners. Gesetzt → fremde Accounts fliegen raus. */
+const SPOTIFY_OWNER_ID = process.env.SPOTIFY_OWNER_ID;
 
 const basic = Buffer.from(
   `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
@@ -53,6 +81,13 @@ const RECENTLY_PLAYED_ENDPOINT =
   "https://api.spotify.com/v1/me/player/recently-played?limit=1";
 const TOP_TRACKS_ENDPOINT = "https://api.spotify.com/v1/me/top/tracks";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
+const ME_ENDPOINT = "https://api.spotify.com/v1/me";
+
+/** Laufzeit eines Refresh-Tokens laut Spotify (6 Monate). */
+const REFRESH_TOKEN_TTL_DAYS = 180;
+/** Ab so vielen Resttagen warnt der Server im Log. */
+const REAUTH_WARN_DAYS = 14;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /* Spotify OAuth – no CORS needed (direct browser navigation) */
 const SPOTIFY_REDIRECT_URI = "https://bbastian.dev/spotify-callback";
@@ -62,7 +97,275 @@ const SPOTIFY_SCOPES = [
   "user-top-read",
 ].join(" ");
 
+/** Wird geworfen, wenn kein gültiges Refresh-Token (mehr) vorliegt. */
+class SpotifyAuthError extends Error {
+  constructor(message, { needsReauth = false } = {}) {
+    super(message);
+    this.name = "SpotifyAuthError";
+    this.needsReauth = needsReauth;
+  }
+}
+
+/** @type {{refreshToken: string, obtainedAt: Date|null, accountId: string|null}|null} */
+let spotifyAuth = null;
+/** true, sobald Spotify das Token mit `invalid_grant` abgelehnt hat. */
+let spotifyNeedsReauth = false;
+/** @type {{token: string, expiresAt: number}|null} */
+let accessTokenCache = null;
+/** @type {Promise<{access_token: string}>|null} — verhindert parallele Refreshes. */
+let accessTokenInFlight = null;
+
+/** Einmalige `state`-Werte aus /spotify/auth → verhindert fremde Exchanges. */
+const pendingAuthStates = new Map();
+const AUTH_STATE_TTL_MS = 10 * 60 * 1000;
+
+/** Ablaufdatum des aktuellen Refresh-Tokens, oder null wenn unbekannt. */
+function refreshTokenExpiry() {
+  if (!spotifyAuth?.obtainedAt) return null;
+  return new Date(spotifyAuth.obtainedAt.getTime() + REFRESH_TOKEN_TTL_DAYS * DAY_MS);
+}
+
+function refreshTokenDaysLeft() {
+  const expiry = refreshTokenExpiry();
+  if (!expiry) return null;
+  return Math.floor((expiry.getTime() - Date.now()) / DAY_MS);
+}
+
+function reauthUrl() {
+  return SPOTIFY_ADMIN_KEY
+    ? `https://api.bbastian.dev/spotify/auth?key=<SPOTIFY_ADMIN_KEY>`
+    : `https://api.bbastian.dev/spotify/auth (SPOTIFY_ADMIN_KEY fehlt in .env!)`;
+}
+
+/** Tabelle anlegen + gespeichertes Token laden, sonst .env-Token übernehmen. */
+async function loadSpotifyAuth() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS spotify_auth (
+        id            TINYINT     NOT NULL PRIMARY KEY,
+        refresh_token TEXT        NOT NULL,
+        account_id    VARCHAR(64) NULL,
+        obtained_at   DATETIME    NULL,
+        updated_at    DATETIME    NOT NULL DEFAULT NOW() ON UPDATE NOW()
+      )
+    `);
+
+    const [rows] = await db.query(
+      `SELECT refresh_token, account_id, obtained_at FROM spotify_auth WHERE id = 1`,
+    );
+
+    if (rows.length > 0 && rows[0].refresh_token) {
+      spotifyAuth = {
+        refreshToken: rows[0].refresh_token,
+        accountId: rows[0].account_id || null,
+        obtainedAt: rows[0].obtained_at ? new Date(rows[0].obtained_at) : null,
+      };
+      logInfo("🎧 Spotify: Refresh-Token aus der DB geladen.");
+    } else if (SPOTIFY_REFRESH_TOKEN) {
+      // Erststart: .env-Token in die DB übernehmen. Ausgabezeitpunkt ist
+      // unbekannt → obtained_at bleibt NULL, damit /spotify/status nicht lügt.
+      spotifyAuth = {
+        refreshToken: SPOTIFY_REFRESH_TOKEN,
+        accountId: null,
+        obtainedAt: null,
+      };
+      await persistSpotifyAuth();
+      logInfo("🎧 Spotify: Token aus .env in die DB übernommen.");
+    }
+  } catch (err) {
+    logError("Spotify auth load", err);
+    // DB weg → wenigstens mit dem .env-Token weiterlaufen.
+    if (!spotifyAuth && SPOTIFY_REFRESH_TOKEN) {
+      spotifyAuth = {
+        refreshToken: SPOTIFY_REFRESH_TOKEN,
+        accountId: null,
+        obtainedAt: null,
+      };
+    }
+  }
+
+  if (!spotifyAuth) {
+    logInfo(`⚠️  Spotify: kein Refresh-Token vorhanden → ${reauthUrl()}`);
+    return;
+  }
+
+  const daysLeft = refreshTokenDaysLeft();
+  if (daysLeft === null) {
+    logInfo(
+      "🎧 Spotify: Ausgabezeitpunkt des Tokens unbekannt — Ablauf kann nicht vorhergesagt werden.",
+    );
+  } else if (daysLeft <= 0) {
+    spotifyNeedsReauth = true;
+    logInfo(`⚠️  Spotify: Refresh-Token abgelaufen → ${reauthUrl()}`);
+  } else if (daysLeft <= REAUTH_WARN_DAYS) {
+    logInfo(`⚠️  Spotify: Token läuft in ${daysLeft} Tagen ab → ${reauthUrl()}`);
+  } else {
+    logInfo(`🎧 Spotify: Token gültig, noch ${daysLeft} Tage.`);
+  }
+}
+
+async function persistSpotifyAuth() {
+  if (!spotifyAuth) return;
+  await db.execute(
+    `INSERT INTO spotify_auth (id, refresh_token, account_id, obtained_at)
+     VALUES (1, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       refresh_token = VALUES(refresh_token),
+       account_id    = VALUES(account_id),
+       obtained_at   = VALUES(obtained_at)`,
+    [spotifyAuth.refreshToken, spotifyAuth.accountId, spotifyAuth.obtainedAt],
+  );
+}
+
+/** Neues Refresh-Token übernehmen (Re-Auth oder Rotation) und speichern. */
+async function storeRefreshToken(refreshToken, { accountId, obtainedAt } = {}) {
+  spotifyAuth = {
+    refreshToken,
+    accountId: accountId ?? spotifyAuth?.accountId ?? null,
+    obtainedAt: obtainedAt ?? spotifyAuth?.obtainedAt ?? null,
+  };
+  spotifyNeedsReauth = false;
+  accessTokenCache = null;
+
+  try {
+    await persistSpotifyAuth();
+  } catch (err) {
+    // Nicht fatal: der Prozess läuft mit dem Token im RAM weiter.
+    logError("Spotify auth persist", err);
+  }
+}
+
+const spotifyAuthReady = loadSpotifyAuth().catch((err) =>
+  logError("Spotify auth init", err),
+);
+
+async function requestAccessToken() {
+  const response = await fetch(TOKEN_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: spotifyAuth.refreshToken,
+    }),
+  });
+
+  const text = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    logError(
+      "Spotify token",
+      new Error(`Invalid token response (${response.status}): ${text.slice(0, 200)}`),
+    );
+    throw new Error("Invalid Spotify token response");
+  }
+
+  // Seit 07/2026: abgelaufenes Refresh-Token → 400 invalid_grant.
+  // Nicht wiederholen, Token verwerfen, Owner muss neu autorisieren.
+  if (data.error === "invalid_grant") {
+    spotifyNeedsReauth = true;
+    accessTokenCache = null;
+    logError(
+      "Spotify token",
+      new Error(
+        `invalid_grant — Refresh-Token abgelaufen oder widerrufen (${data.error_description || "no description"}). Re-Auth: ${reauthUrl()}`,
+      ),
+    );
+    throw new SpotifyAuthError("Spotify refresh token expired", {
+      needsReauth: true,
+    });
+  }
+
+  if (!data.access_token) {
+    logError(
+      "Spotify token",
+      new Error(`No access_token in response (${response.status}): ${JSON.stringify(data)}`),
+    );
+    throw new Error("No Spotify access token");
+  }
+
+  // Rotation: liefert Spotify ein neues Refresh-Token mit, ersetzt es das alte.
+  // Achtung — das verlängert die 6-Monats-Frist NICHT, obtained_at bleibt.
+  if (data.refresh_token && data.refresh_token !== spotifyAuth.refreshToken) {
+    logInfo("🎧 Spotify: rotiertes Refresh-Token übernommen.");
+    await storeRefreshToken(data.refresh_token);
+  }
+
+  const ttlMs = (Number(data.expires_in) || 3600) * 1000;
+  accessTokenCache = {
+    token: data.access_token,
+    expiresAt: Date.now() + ttlMs - 60_000, // 60s Sicherheitsabstand
+  };
+
+  return { access_token: data.access_token };
+}
+
+async function getAccessToken() {
+  await spotifyAuthReady;
+
+  if (accessTokenCache && Date.now() < accessTokenCache.expiresAt) {
+    return { access_token: accessTokenCache.token };
+  }
+
+  if (!spotifyAuth) {
+    throw new SpotifyAuthError("No Spotify refresh token configured", {
+      needsReauth: true,
+    });
+  }
+
+  if (spotifyNeedsReauth) {
+    // Gar nicht erst anfragen — das Token ist tot, bis der Owner re-autorisiert.
+    throw new SpotifyAuthError("Spotify refresh token expired", {
+      needsReauth: true,
+    });
+  }
+
+  if (!accessTokenInFlight) {
+    accessTokenInFlight = requestAccessToken().finally(() => {
+      accessTokenInFlight = null;
+    });
+  }
+
+  return accessTokenInFlight;
+}
+
+/** Einheitliche Fehlerantwort für die Spotify-Datenrouten. */
+function handleSpotifyError(res, context, error, fallbackMessage) {
+  logError(context, error);
+  if (error instanceof SpotifyAuthError) {
+    return res.status(503).json({
+      error: "spotify_reauth_required",
+      message: "Spotify authorization expired — the site owner needs to reconnect.",
+    });
+  }
+  return res.status(500).json({ error: fallbackMessage });
+}
+
+function adminKeyOk(req) {
+  return Boolean(SPOTIFY_ADMIN_KEY) && req.query.key === SPOTIFY_ADMIN_KEY;
+}
+
 app.get("/spotify/auth", (req, res) => {
+  if (!SPOTIFY_ADMIN_KEY) {
+    logInfo("⚠️  /spotify/auth aufgerufen, aber SPOTIFY_ADMIN_KEY ist nicht gesetzt.");
+    return res
+      .status(503)
+      .send("Spotify re-auth is disabled: SPOTIFY_ADMIN_KEY is not configured.");
+  }
+  if (!adminKeyOk(req)) return res.status(403).send("Forbidden");
+
+  // Einmal-State: /spotify/exchange akzeptiert nur Codes aus diesem Flow.
+  const state = randomUUID();
+  pendingAuthStates.set(state, Date.now() + AUTH_STATE_TTL_MS);
+  for (const [key, expiresAt] of pendingAuthStates) {
+    if (expiresAt < Date.now()) pendingAuthStates.delete(key);
+  }
+
   const url =
     "https://accounts.spotify.com/authorize?" +
     new URLSearchParams({
@@ -70,6 +373,7 @@ app.get("/spotify/auth", (req, res) => {
       client_id: SPOTIFY_CLIENT_ID,
       scope: SPOTIFY_SCOPES,
       redirect_uri: SPOTIFY_REDIRECT_URI,
+      state,
     });
   res.redirect(url);
 });
@@ -189,38 +493,7 @@ app.get("/github-stats", async (req, res) => {
   }
 });
 
-/* Spotify */
-
-async function getAccessToken() {
-  const response = await fetch(TOKEN_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: SPOTIFY_REFRESH_TOKEN,
-    }),
-  });
-
-  const text = await response.text();
-
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    console.error("Spotify token raw response:", text);
-    throw new Error("Invalid Spotify token response");
-  }
-
-  if (!data.access_token) {
-    console.error("Spotify token error:", data);
-    throw new Error("No Spotify access token");
-  }
-
-  return data;
-}
+/* Spotify data helpers */
 
 async function getNowPlaying() {
   const { access_token } = await getAccessToken();
@@ -254,35 +527,120 @@ async function getRecentlyPlayed() {
   return response.json();
 }
 
+/**
+ * GET /spotify/exchange?code=&state=
+ * Tauscht den OAuth-Code gegen ein Refresh-Token und legt es in der DB ab.
+ * Der `state` muss aus /spotify/auth stammen (Einmal-Wert), sonst könnte
+ * jeder Fremde sein eigenes Spotify-Konto in die DB schreiben.
+ */
 app.get("/spotify/exchange", async (req, res) => {
-  const code = req.query.code;
+  const { code, state } = req.query;
   if (!code) return res.status(400).json({ error: "Missing code" });
 
-  const tokenRes = await fetch(TOKEN_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: SPOTIFY_REDIRECT_URI,
-    }),
-  });
-
-  const data = await tokenRes.json();
-
-  if (!data.refresh_token) {
-    console.error("Spotify exchange error:", data);
-    return res.status(500).json({ error: "Failed", detail: data });
+  const stateExpiry = state ? pendingAuthStates.get(state) : undefined;
+  if (!stateExpiry || stateExpiry < Date.now()) {
+    if (state) pendingAuthStates.delete(state);
+    logInfo("⚠️  Spotify exchange mit ungültigem/abgelaufenem state abgelehnt.");
+    return res.status(403).json({ error: "Invalid or expired state" });
   }
+  pendingAuthStates.delete(state); // Einmal-Verwendung
 
-  console.log("=== NEW SPOTIFY REFRESH TOKEN ===");
-  console.log(data.refresh_token);
+  try {
+    const tokenRes = await fetch(TOKEN_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basic}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: SPOTIFY_REDIRECT_URI,
+      }),
+    });
 
-  res.json({ refresh_token: data.refresh_token });
+    const data = await tokenRes.json();
+
+    if (!data.refresh_token) {
+      logError("Spotify exchange", new Error(JSON.stringify(data)));
+      return res.status(502).json({ error: "Failed", detail: data });
+    }
+
+    // Wer hat da autorisiert? Nur informativ — außer SPOTIFY_OWNER_ID ist gesetzt.
+    let account = null;
+    try {
+      const meRes = await fetch(ME_ENDPOINT, {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      });
+      if (meRes.ok) account = await meRes.json();
+    } catch (err) {
+      logError("Spotify exchange /me", err);
+    }
+
+    if (SPOTIFY_OWNER_ID && account?.id && account.id !== SPOTIFY_OWNER_ID) {
+      logInfo(`⚠️  Spotify exchange abgelehnt: fremder Account "${account.id}".`);
+      return res.status(403).json({ error: "Not the owner account" });
+    }
+
+    await storeRefreshToken(data.refresh_token, {
+      accountId: account?.id ?? null,
+      obtainedAt: new Date(),
+    });
+
+    const expiry = refreshTokenExpiry();
+    logInfo(
+      `🎧 Spotify: neues Refresh-Token gespeichert (Account: ${account?.id || "unbekannt"}), gültig bis ${expiry?.toISOString().slice(0, 10)}.`,
+    );
+
+    res.json({
+      stored: true,
+      account: account?.display_name || account?.id || null,
+      expiresAt: expiry ? expiry.toISOString() : null,
+      daysValid: REFRESH_TOKEN_TTL_DAYS,
+    });
+  } catch (err) {
+    logError("Spotify exchange", err);
+    res.status(500).json({ error: "Exchange failed" });
+  }
 });
+
+/**
+ * GET /spotify/status
+ * Öffentlich: nur ob die Verbindung steht. Mit ?key=<SPOTIFY_ADMIN_KEY>
+ * zusätzlich Ablaufdatum und Restlaufzeit des Refresh-Tokens.
+ */
+app.get("/spotify/status", async (req, res) => {
+  await spotifyAuthReady;
+
+  const connected = Boolean(spotifyAuth) && !spotifyNeedsReauth;
+  if (!adminKeyOk(req)) return res.json({ connected });
+
+  const expiry = refreshTokenExpiry();
+  res.json({
+    connected,
+    needsReauth: spotifyNeedsReauth,
+    hasToken: Boolean(spotifyAuth),
+    accountId: spotifyAuth?.accountId ?? null,
+    obtainedAt: spotifyAuth?.obtainedAt?.toISOString() ?? null,
+    expiresAt: expiry?.toISOString() ?? null,
+    daysLeft: refreshTokenDaysLeft(),
+    reauthUrl: "https://api.bbastian.dev/spotify/auth?key=…",
+  });
+});
+
+// Alle 12h ans Ablaufdatum erinnern, solange das Token noch lebt.
+setInterval(
+  () => {
+    if (!spotifyAuth || spotifyNeedsReauth) return;
+    const daysLeft = refreshTokenDaysLeft();
+    if (daysLeft !== null && daysLeft <= REAUTH_WARN_DAYS) {
+      logInfo(
+        `⚠️  Spotify: Refresh-Token läuft in ${daysLeft} Tagen ab → ${reauthUrl()}`,
+      );
+    }
+  },
+  12 * 60 * 60 * 1000,
+).unref();
 
 /**
  * GET /spotify/now-playing
@@ -348,8 +706,12 @@ app.get("/spotify/now-playing", async (req, res) => {
 
     return res.json({ status: "idle" });
   } catch (error) {
-    console.error("Spotify API Error:", error);
-    return res.json({ status: "error" });
+    logError("Spotify now-playing", error);
+    // NavBar erwartet immer 200 + status — sonst blinkt der Player kaputt.
+    return res.json({
+      status: "error",
+      reason: error instanceof SpotifyAuthError ? "reauth_required" : "api_error",
+    });
   }
 });
 
@@ -399,8 +761,12 @@ app.get("/spotify/top-tracks", async (req, res) => {
 
     return res.json({ tracks, time_range });
   } catch (error) {
-    console.error("Spotify Top Tracks Error:", error);
-    return res.status(500).json({ error: "Failed to fetch top tracks" });
+    return handleSpotifyError(
+      res,
+      "Spotify top-tracks",
+      error,
+      "Failed to fetch top tracks",
+    );
   }
 });
 
@@ -459,10 +825,12 @@ app.get("/spotify/artist-hall-of-fame", async (req, res) => {
 
     return res.json({ artists });
   } catch (error) {
-    console.error("Spotify Artist HoF Error:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to fetch artist hall of fame" });
+    return handleSpotifyError(
+      res,
+      "Spotify artist-hall-of-fame",
+      error,
+      "Failed to fetch artist hall of fame",
+    );
   }
 });
 
@@ -540,8 +908,12 @@ app.get("/spotify/hall-of-fame", async (req, res) => {
 
     return res.json({ tracks });
   } catch (error) {
-    console.error("Spotify Hall of Fame Error:", error);
-    return res.status(500).json({ error: "Failed to fetch hall of fame" });
+    return handleSpotifyError(
+      res,
+      "Spotify hall-of-fame",
+      error,
+      "Failed to fetch hall of fame",
+    );
   }
 });
 

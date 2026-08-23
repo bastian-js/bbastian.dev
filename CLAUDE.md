@@ -104,7 +104,7 @@ endpoints:
 - `GET  /github-stats` — GitHub profile/repo/language stats. Wrapped in a
   10-min in-memory cache (`ghCache`); on GitHub failure it serves stale data
   instead of 500. (Uncached it fires N+2 GitHub requests — one per repo.)
-- Spotify: `GET /spotify/{auth,exchange,now-playing,top-tracks,hall-of-fame,artist-hall-of-fame}`
+- Spotify: `GET /spotify/{auth,exchange,status,now-playing,top-tracks,hall-of-fame,artist-hall-of-fame}`
 - `POST /contact` (rate-limited) — sends email via Resend/nodemailer, zod-validated
 - `POST /noury/waitlist`, `GET /noury/waitlist/count`
 - Leaderboards: `GET|POST /leaderboard/{minesweeper,snake}` (POST rate-limited)
@@ -124,6 +124,33 @@ global Express error middleware (after all routes) + `uncaughtException` /
 `unhandledRejection` handlers catch everything else. The CORS `origin` callback
 denies with `callback(null, false)` (never throws) so origin-less requests
 don't spam error stacks.
+
+**Spotify auth (wichtig):** Seit **2026-07-20** laufen Spotify-Refresh-Tokens
+nach **6 Monaten** ab ([Announcement](https://developer.spotify.com/blog/2026-06-18-refresh-token-expiration)) —
+ein Access-Token-Refresh verlängert die Frist *nicht*. Deshalb:
+
+- Das aktive Refresh-Token liegt in der MySQL-Tabelle `spotify_auth`
+  (single row `id=1`, wird beim Start per `CREATE TABLE IF NOT EXISTS`
+  angelegt). `SPOTIFY_REFRESH_TOKEN` in `.env` ist nur noch Bootstrap-Seed und
+  wird beim ersten Start mit `obtained_at = NULL` übernommen (Ausgabezeitpunkt
+  unbekannt → `/spotify/status` meldet dann `daysLeft: null`).
+- `getAccessToken()` cacht das Access-Token im RAM (`expires_in - 60s`) und
+  dedupliziert parallele Refreshes über `accessTokenInFlight`.
+- Antwortet Spotify mit `invalid_grant`, wird `spotifyNeedsReauth` gesetzt:
+  kein Retry mehr, die Datenrouten geben `503 {error:"spotify_reauth_required"}`
+  (`/spotify/now-playing` bleibt bei `200 {status:"error",reason:"reauth_required"}`,
+  damit die NavBar nicht bricht). Ein `SpotifyAuthError` transportiert das.
+- **Re-Auth (alle 6 Monate nötig):** `SPOTIFY_ADMIN_KEY` in `.env` setzen, dann
+  `https://api.bbastian.dev/spotify/auth?key=<KEY>` im Browser öffnen →
+  Spotify-Consent → Redirect auf `/spotify-callback` → `/spotify/exchange`
+  schreibt das neue Token in die DB. **Kein .env-Edit, kein Restart nötig.**
+  Ohne `SPOTIFY_ADMIN_KEY` ist `/spotify/auth` deaktiviert (403/503), weil
+  `exchange` sonst jedem Fremden erlauben würde, sein Konto einzutragen. Der
+  `state`-Wert aus `/spotify/auth` ist einmalig und 10 min gültig; optional
+  lehnt `SPOTIFY_OWNER_ID` fremde Accounts zusätzlich ab.
+- `GET /spotify/status` → public nur `{connected}`; mit `?key=` zusätzlich
+  `expiresAt` / `daysLeft` / `accountId`. Ab ≤ 14 Resttagen warnt der Server
+  alle 12 h im pm2-Log.
 
 **Content filtering:** `normalizeWord()` folds leetspeak, German umlauts,
 spacing and accents down to `[a-z0-9]` before comparing against
