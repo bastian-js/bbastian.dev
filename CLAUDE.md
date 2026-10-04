@@ -170,6 +170,11 @@ spacing and accents down to `[a-z0-9]` before comparing against
   cookie — dismissal is persisted in `localStorage["law_banner_dismissed"]="1"`
   (permanent). Hidden on the `/leave-a-word` page itself. Slide-in/out via
   transform+opacity.
+- **ReleaseBanner** (`src/components/ReleaseBanner.tsx`, top of `Home.tsx`):
+  dismissible "Out Now" release banner (currently DropNote v2.9.1 → GitHub
+  release). Dismissal is permanent via a **versioned** localStorage key
+  (`release_banner_dropnote_v2.9.1_dismissed`) — bump the key + texts for the
+  next release so it shows again.
 - **SplashScreen** (`src/components/SplashScreen.tsx`): split-panel intro shown
   once per session (`sessionStorage["bbastian_splash_shown"]`). A module-level
   `_started` guard prevents React StrictMode double-init. Timers intentionally

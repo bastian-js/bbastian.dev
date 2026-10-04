@@ -61,26 +61,6 @@ export default function PiggyTrack() {
           <div className="relative p-8 md:p-14">
             {/* Badge */}
             <div className="flex items-center gap-3 flex-wrap">
-              <span
-                className="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-[11px] font-bold tracking-[0.2em] uppercase border"
-                style={{
-                  borderColor: `${PINK}50`,
-                  background: `${PINK}15`,
-                  color: "#ffb3d4",
-                }}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60"
-                    style={{ background: PINK }}
-                  />
-                  <span
-                    className="relative inline-flex h-2 w-2 rounded-full"
-                    style={{ background: PINK }}
-                  />
-                </span>
-                Available Now
-              </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">
                 React Native · Expo · TypeScript
               </span>

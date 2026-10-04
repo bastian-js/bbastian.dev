@@ -71,15 +71,11 @@ export default function ProPerform() {
               >
                 <span className="relative flex h-2 w-2">
                   <span
-                    className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60"
-                    style={{ background: BLUE }}
-                  />
-                  <span
                     className="relative inline-flex h-2 w-2 rounded-full"
                     style={{ background: BLUE }}
                   />
                 </span>
-                Soon in the App Store
+                On Hold
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">
                 React Native · Web · TypeScript
@@ -121,7 +117,7 @@ export default function ProPerform() {
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/3 px-6 py-5 opacity-50">
           <div>
             <p className="text-sm font-semibold text-white">Available on iOS</p>
-            <p className="mt-0.5 text-xs text-gray-500">Coming soon</p>
+            <p className="mt-0.5 text-xs text-gray-500">Development currently on hold</p>
           </div>
           <div className="flex items-center gap-3 pointer-events-none">
             <div

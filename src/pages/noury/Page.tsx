@@ -90,10 +90,9 @@ function Noury() {
             <div className="flex items-center gap-3 flex-wrap">
               <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-3.5 py-1 text-[11px] font-bold tracking-[0.2em] text-emerald-200 uppercase">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                Coming Soon
+                On Hold
               </span>
               {waitlistCount !== null && waitlistCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">
@@ -224,12 +223,12 @@ function Noury() {
           <div>
             <p className="text-sm font-semibold text-white">Available on iOS</p>
             <p className="mt-0.5 text-xs text-gray-500">
-              Launching soon on the App Store
+              Development currently on hold
             </p>
           </div>
           <button
             disabled
-            title="Coming soon"
+            title="On hold"
             className="inline-flex items-center gap-3 rounded-xl bg-black border border-white/15 px-5 py-3 opacity-50 cursor-not-allowed select-none"
           >
             <svg
